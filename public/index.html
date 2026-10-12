@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SUMO//LAB AI — Combate 3D con cerebros GPT</title>
+<meta name="description" content="Simulador 3D de mini sumo con cerebros GPT opcionales a través de la API de OpenAI y control local de seguridad.">
+<style>
+:root{--bg:#070e17;--panel:#0d1825;--panel2:#111f2d;--border:#223246;--text:#eaf2fc;--muted:#8599af;--a:#54d6e7;--b:#ffab5e;--green:#79d8a7;--red:#f27882;--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}body{background:radial-gradient(ellipse 75% 80% at 36% 45%,#0d2232 0,#070e17 67%)}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--a);outline-offset:3px}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:0 29px;border-bottom:1px solid #243247;max-width:1800px;margin:auto}
+.brand{display:flex;gap:12px;align-items:center}.brand-mark{height:38px;width:38px;border:1px solid #4b97a8;border-radius:12px;display:grid;place-items:center;color:var(--a);font-size:20px;font-weight:900;box-shadow:0 0 18px #24798b32}.brand-name{font-size:20px;letter-spacing:.09em;font-weight:850}.brand-name span{color:var(--a)}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.1em;white-space:nowrap;margin-top:3px}
+.header-right{display:flex;align-items:center;gap:12px}.live-pill{border:1px solid #326657;background:#0d2b2b;color:#9ae0bd;font-size:11px;padding:7px 11px;border-radius:100px;letter-spacing:.07em;font-weight:750}.live-pill:before{content:"";display:inline-block;width:6px;height:6px;background:#79d8a7;border-radius:50%;margin-right:8px}.ghostbtn{border:1px solid #30445a;color:#bdcad9;background:#142235;border-radius:9px;padding:9px 12px;font-weight:650;font-size:12px;transition:.2s}.ghostbtn:hover{border-color:#6aa5b1;background:#1b3345}.icon-btn{min-width:36px;padding:9px}
+main{max-width:1800px;margin:auto;padding:23px 28px 30px}.intro{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:20px}.eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#78d8e4;font-weight:800}.intro h1{margin:8px 0 6px;font-size:clamp(23px,2.2vw,32px);font-weight:790;letter-spacing:-.036em}.intro p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}.intro .build{font-size:11px;color:#6d879c;text-align:right;line-height:1.7;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 342px;gap:19px;align-items:start}.stage-col{min-width:0}.scene-card{position:relative;height:clamp(440px,56vw,650px);background:radial-gradient(ellipse at 50% 48%,#142638 0,#0a1522 68%,#07101a 100%);border:1px solid #24364a;overflow:hidden;border-radius:16px;box-shadow:0 18px 62px #0004}#gl{display:block;width:100%;height:100%;touch-action:none;cursor:grab}#gl:active{cursor:grabbing}.scene-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 95px #050b13a6;border-radius:16px}.hud-row{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}.score-card{display:flex;gap:11px;align-items:center;background:#0a1521d9;backdrop-filter:blur(13px);border:1px solid #2b3e51;border-radius:12px;padding:10px 13px;min-width:163px}.team-bar{height:32px;width:4px;border-radius:5px;background:var(--a);box-shadow:0 0 16px var(--a)}.score-card.orange .team-bar{background:var(--b);box-shadow:0 0 16px var(--b)}.team-name{font-size:10px;letter-spacing:.08em;color:#b6cadc;font-weight:780}.team-desc{font-size:10px;color:#6f879d;margin-top:4px}.score-val{margin-left:auto;font-weight:850;font-size:26px;font-variant-numeric:tabular-nums}.match-center{display:flex;flex-direction:column;align-items:center;gap:6px;background:#091522b8;backdrop-filter:blur(10px);border:1px solid #283d4f;border-radius:12px;padding:10px 20px;min-width:140px}.time{font-size:28px;line-height:1;font-weight:850;letter-spacing:.025em;font-variant-numeric:tabular-nums}.timer-label{font-size:9px;letter-spacing:.13em;color:var(--muted);font-weight:730}.top-pills{position:absolute;top:108px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}.top-pill{padding:6px 9px;background:#0b1c2bd0;border:1px solid #234357;color:#bbd5e4;border-radius:100px;font-size:10px;white-space:nowrap}.center-overlay{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;text-shadow:0 3px 20px #000;width:min(80%,440px)}.center-overlay .kicker{font-size:11px;letter-spacing:.3em;color:#99dbe1;font-weight:800}.center-overlay .big{font-size:clamp(54px,8vw,95px);font-weight:900;letter-spacing:-.06em;line-height:1.15}.center-overlay .message{font-size:14px;color:#cedce7;line-height:1.5}.center-overlay.hidden{display:none}.viewport-bottom{position:absolute;bottom:18px;left:19px;right:19px;display:flex;align-items:flex-end;justify-content:space-between;gap:13px}.scene-tip{pointer-events:none;font-size:11px;color:#8aa1b2;line-height:1.7;background:#08131ed3;border:1px solid #253849;border-radius:9px;padding:9px 11px}.camera-btns{display:flex;gap:7px}.camera-btns button{background:#0b1c2de5;color:#c5d3e0;border:1px solid #344a5a;padding:9px 11px;border-radius:9px;font-weight:700;font-size:11px;backdrop-filter:blur(8px)}.camera-btns button.active{background:#174357;border-color:#4e95aa;color:#def9ff}
+.under-stage{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:14px}.telemetry{background:#0c1825;border:1px solid #21364b;border-radius:13px;padding:16px 17px;min-width:0}.mini-title{font-weight:800;letter-spacing:.055em;font-size:11px;text-transform:uppercase;color:#c4d4e2}.tele-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.tele-state{font-size:10px;border-radius:6px;padding:4px 7px;background:#14333e;color:var(--a);font-weight:720}.tele-state.orange{background:#3e2b1f;color:var(--b)}.read-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.read-item{background:#101e2b;border:1px solid #203345;border-radius:7px;padding:9px 4px;text-align:center}.read-item span{font-size:9px;color:#7f96a9;display:block;margin-bottom:5px}.read-item strong{font-size:11px;font-weight:790;color:#647688;letter-spacing:.03em}.read-item strong.on.blue{color:#69f1f4;text-shadow:0 0 15px #4af6ff70}.read-item strong.on.orange{color:#ffc78a;text-shadow:0 0 15px #ffb66570}.line-read{margin-top:10px;display:flex;justify-content:space-between;color:#8aa0b5;font-size:10px}.line-read b{color:#b9cedc}.line-read b.warn{color:#ff8e92}
+.sidebar{display:flex;flex-direction:column;gap:14px}.panel{border-radius:13px;border:1px solid #24374c;background:linear-gradient(150deg,#122131,#0c1825);padding:18px}.panel-title{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.025em;font-weight:800;margin-bottom:17px}.panel-title small{font-size:10px;font-weight:500;color:#778fa3}.panel-sep{height:1px;background:#26394b;margin:16px 0}.team-row{display:flex;gap:11px;align-items:center;margin-bottom:12px}.swatch{width:9px;height:36px;border-radius:4px;background:var(--a);box-shadow:0 0 14px #4fbfda2a}.swatch.orange{background:var(--b);box-shadow:0 0 14px #ff9d5f2a}.team-row strong{font-size:12px;display:block}.team-row small{font-size:10px;color:#8298ad}.select-label{font-size:10px;color:#90a8bc;margin-bottom:7px;display:block}.panel select{width:100%;background:#101d2b;color:#e4eef7;border:1px solid #31475d;border-radius:8px;padding:10px 12px;outline:none;font-size:12px}.panel select:focus{border-color:#68cbdc}.strategy-desc{margin:8px 0 0;font-size:10px;color:#8097aa;min-height:26px;line-height:1.5}.slider-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#b7c9d7;margin-bottom:9px}.slider-head strong{color:#e5f0f7;font-variant-numeric:tabular-nums}.rangerow{margin:14px 0}input[type=range]{width:100%;accent-color:#64d4dc;cursor:pointer;height:4px}.range-labels{display:flex;justify-content:space-between;color:#607c90;font-size:9px;margin-top:4px}.checkbox-row{display:flex;justify-content:space-between;align-items:center;margin:12px 0;font-size:11px;color:#afc1d3;cursor:pointer}.checkbox-row input{accent-color:#57d5dd;width:15px;height:15px}.sim-controls{display:flex;gap:8px}.primary{width:100%;padding:13px 12px;background:linear-gradient(105deg,#54dddc,#65b6ee);border:none;border-radius:10px;font-weight:850;color:#052330;letter-spacing:.02em;box-shadow:0 7px 25px #47cada20;transition:.2s}.primary:hover{filter:brightness(1.08)}.secondary{padding:12px 13px;background:#172c3c;border:1px solid #365167;color:#d6e5ef;border-radius:10px;font-size:12px;font-weight:700}.secondary:hover{background:#214257}.speed-buttons{display:flex;gap:7px}.speed-buttons button{flex:1;background:#0c1b29;border:1px solid #304459;color:#8fa6b8;border-radius:7px;padding:8px 2px;font-size:11px;font-weight:800}.speed-buttons button.active{background:#17465a;border-color:#54acbd;color:#d9f9ff}.event-log{max-height:165px;overflow:auto;scrollbar-color:#345063 transparent;padding-right:3px}.log-entry{display:flex;gap:10px;margin-bottom:9px;font-size:10px;line-height:1.45;color:#a2b4c5}.log-entry time{flex:0 0 36px;font-variant-numeric:tabular-nums;color:#668398}.log-entry .a{color:var(--a)}.log-entry .b{color:var(--b)}.log-entry .neutral{color:#d6dee7}.emptylog{font-size:11px;color:#7e93a5}.spec-row{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #223648;padding:9px 0;font-size:11px}.spec-row:first-of-type{border-top:none}.spec-row span{color:#8da4b5}.spec-row strong{font-weight:720;color:#d5e5f0}.note{font-size:10px;color:#68849b;line-height:1.65;margin:15px 0 0}.help{margin-top:20px;color:#6d879d;font-size:11px;line-height:1.65}.help strong{color:#b5c6d2}.no-webgl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:#0b1b2b;color:white;padding:30px;z-index:10}
+@media(max-width:1120px){.layout{grid-template-columns:minmax(0,1fr) 304px}.score-card{min-width:133px}.match-center{padding:10px 12px;min-width:100px}.score-card{padding:9px}.scene-card{height:540px}}@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr}.scene-card{height:min(66vw,590px)}}@media(max-width:600px){header{height:60px;padding:0 15px}.brand-mark{width:34px;height:34px}.brand-name{font-size:17px}.brand-sub{display:none}.header-right .live-pill{display:none}.intro .build{display:none}main{padding:20px 12px}.intro h1{font-size:25px}.scene-card{height:480px}.hud-row{left:9px;right:9px;top:11px;gap:4px}.score-card{min-width:0;flex:1;gap:6px;padding:8px}.score-val{font-size:19px}.team-name{font-size:9px}.team-desc{font-size:8px}.match-center{flex:0 0 77px;padding:9px 4px}.time{font-size:21px}.timer-label{font-size:7px}.top-pills{top:87px}.top-pill{font-size:9px}.viewport-bottom{left:8px;right:8px;bottom:9px}.scene-tip{display:none}.under-stage{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr}.camera-btns{width:100%;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="brand-mark">Σ</div><div><div class="brand-name">SUMO<span>//</span>LAB</div><div class="brand-sub">AUTONOMOUS ROBOTICS SIMULATOR</div></div></div>
+ <div class="header-right"><span class="live-pill">FSM LOCAL + GPT ONLINE OPCIONAL</span><button id="resetTop" class="ghostbtn">↺ Reiniciar</button></div>
+</header>
+<main>
+<div class="intro"><div><div class="eyebrow">Engineering Challenge 2026 / Laboratorio virtual</div><h1>Arena de combate autónomo</h1><p>Dos robots mini sumo con cerebros GPT independientes, control de seguridad local y física aproximada.</p></div><div class="build">SIMULADOR WEB · GPT v2.0<br>ESP32-S3 · FSM · 500 g</div></div>
+<div class="layout">
+ <section class="stage-col">
+  <div class="scene-card" id="stage"><canvas id="gl" aria-label="Escenario 3D de combate de dos robots sumo" role="img"></canvas><div class="scene-vignette"></div>
+   <div class="hud-row"><div class="score-card"><div class="team-bar"></div><div><div class="team-name">SUMOBOT A</div><div class="team-desc" id="nameA">Agresivo</div></div><span class="score-val" id="scoreA">0</span></div><div class="match-center"><div class="time" id="clock">01:00</div><div class="timer-label" id="roundLabel">ASALTO 1 / 3</div></div><div class="score-card orange"><div class="team-bar"></div><div><div class="team-name">SUMOBOT B</div><div class="team-desc" id="nameB">Equilibrado</div></div><span class="score-val" id="scoreB">0</span></div></div>
+   <div class="top-pills"><span class="top-pill" id="statusPill">● EN ESPERA</span><span class="top-pill" id="sensorsPill">Sensores activos</span></div>
+   <div class="center-overlay" id="centerOverlay"><div class="kicker" id="overlayKicker">ESCENARIO LISTO</div><div class="big" id="overlayBig">VS</div><div class="message" id="overlayText">Configura las estrategias y comienza el combate.</div></div>
+   <div class="viewport-bottom"><div class="scene-tip">Arrastra para orbitar · Rueda para acercar<br>Espacio: pausa/reanuda · R: reinicia</div><div class="camera-btns"><button id="cam3d" class="active">◈ 3D</button><button id="camTop">⊙ Cenital</button><button id="camReset">⌖ Centrar</button></div></div>
+  </div>
+  <div class="under-stage">
+   <div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Telemetría A</span><span id="stateA" class="tele-state">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="aLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="aCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="aRight">OFF</strong></div></div><div class="line-read"><span>QTR borde izquierdo <b id="aLineL">LIBRE</b></span><span>Derecho <b id="aLineR">LIBRE</b></span></div></div>
+   <div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Telemetría B</span><span id="stateB" class="tele-state orange">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="bLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="bCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="bRight">OFF</strong></div></div><div class="line-read"><span>QTR borde izquierdo <b id="bLineL">LIBRE</b></span><span>Derecho <b id="bLineR">LIBRE</b></span></div></div>
+  </div>
+ </section>
+ <aside class="sidebar">
+  <section class="panel" id="loginPanel"><div class="panel-title">Acceso privado a GPT <small>RENDER · API PROTEGIDA</small></div>
+   <p style="font-size:11px;line-height:1.6;color:#9eb3c7;margin:4px 0 10px">Introduce la clave <b>SUMOLAB_ACCESS_TOKEN</b> configurada en Render. <b>No es tu API Key de OpenAI.</b></p>
+   <label class="select-label" for="accessCode">Código privado del laboratorio</label>
+   <input id="accessCode" type="password" autocomplete="off" spellcheck="false" placeholder="Código de acceso" style="width:100%;background:#101d2a;border:1px solid #344759;border-radius:8px;color:#eaf2fc;padding:10px;box-sizing:border-box;margin-bottom:8px"/>
+   <button id="unlockGPT" class="ghostbtn" style="width:100%">Validar acceso a GPT</button>
+   <p id="accessState" role="status" style="color:#a5bed0;font-size:11px;line-height:1.6;margin:8px 0 0">Sin validar. Las estrategias FSM funcionan sin acceso.</p>
+  </section>
+  <section class="panel"><div class="panel-title">Configuración de combate <small>CEREBROS GPT / FSM</small></div>
+   <div class="team-row"><div class="swatch"></div><div><strong>Sumobot A</strong><small>Microcontrolador independiente</small></div></div><label for="stratA" class="select-label">Algoritmo autónomo</label><select id="stratA"><option value="gpt">GPT ONLINE · cerebro estratégico</option><option value="agresivo">Agresivo · ataque frontal</option><option value="equilibrado">Equilibrado · buscar y atacar</option><option value="defensivo">Defensivo · proteger borde</option><option value="flanqueador">Flanqueador · ataque curvo</option><option value="aleatorio">Explorador · búsqueda variable</option></select><p class="strategy-desc" id="descA"></p>
+   <div class="panel-sep"></div><div class="team-row"><div class="swatch orange"></div><div><strong>Sumobot B</strong><small>Microcontrolador independiente</small></div></div><label for="stratB" class="select-label">Algoritmo autónomo</label><select id="stratB"><option value="gpt">GPT ONLINE · cerebro estratégico</option><option value="equilibrado">Equilibrado · buscar y atacar</option><option value="agresivo">Agresivo · ataque frontal</option><option value="defensivo">Defensivo · proteger borde</option><option value="flanqueador">Flanqueador · ataque curvo</option><option value="aleatorio">Explorador · búsqueda variable</option></select><p class="strategy-desc" id="descB"></p>
+   <div class="panel-sep"></div><div class="slider-head"><span>Disposición de salida</span></div><select id="formation"><option value="automatico">Reglamentaria · cambia por asalto</option><option value="frontal">Frente a frente</option><option value="diagonal">Diagonal</option><option value="espaldas">Espaldas opuestas</option></select>
+  </section>
+  <section class="panel"><div class="panel-title">Parámetros físicos <small>AJUSTABLES</small></div>
+   <div class="rangerow"><div class="slider-head"><span>Velocidad nominal de motores</span><strong id="rpmVal">500 RPM</strong></div><input type="range" id="rpm" min="200" max="500" step="25" value="500"><div class="range-labels"><span>200 RPM</span><span>N20 · 6 V · 500 RPM</span></div></div>
+   <div class="rangerow"><div class="slider-head"><span>Alcance de sensores JS40F</span><strong id="reachVal">40 cm</strong></div><input type="range" id="reach" min="15" max="40" step="5" value="40"><div class="range-labels"><span>15 cm</span><span>40 cm nominales</span></div></div>
+   <div class="rangerow"><div class="slider-head"><span>Agarre de las ruedas</span><strong id="gripVal">100%</strong></div><input type="range" id="grip" min="55" max="130" step="5" value="100"><div class="range-labels"><span>Bajo</span><span>Alto</span></div></div>
+   <label class="checkbox-row" for="showSensors"><span>Mostrar campos de visión IR</span><input type="checkbox" id="showSensors" checked></label>
+   <label class="checkbox-row" for="showGrid"><span>Mostrar retícula de la arena</span><input type="checkbox" id="showGrid" checked></label>
+  </section>
+  <section class="panel"><div class="panel-title">Control de simulación <small id="controlStatus">PREPARADO</small></div><div class="sim-controls"><button class="primary" id="startBtn">▶ Iniciar asalto</button><button class="secondary" id="pauseBtn" title="Pausar o reanudar" disabled>Ⅱ</button></div><div class="panel-sep"></div><div class="slider-head"><span>Velocidad del tiempo</span><strong id="speedText">1×</strong></div><div class="speed-buttons" id="speedButtons"><button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button></div></section>
+  <section class="panel"><div class="panel-title">Registro de eventos <small>GPT / FSM</small></div><div class="event-log" id="eventLog"><div class="emptylog">Los eventos del asalto aparecerán aquí.</div></div></section>
+  <section class="panel"><div class="panel-title">Especificaciones del escenario</div><div class="spec-row"><span>Dohyo</span><strong>Ø 77 cm</strong></div><div class="spec-row"><span>Robot (máximo)</span><strong>10 × 10 cm</strong></div><div class="spec-row"><span>Masa por robot</span><strong>500 g</strong></div><div class="spec-row"><span>Tracción</span><strong>2 N20 · diferencial</strong></div><div class="spec-row"><span>Sensores</span><strong>3 JS40F + 2 QTR-1A</strong></div><div class="spec-row"><span>Control</span><strong>FSM · 500 Hz</strong></div><div class="spec-row"><span>Formato</span><strong>60 s · mejor de 3</strong></div><p class="note">Modelo educativo con dinámica planar simplificada, contacto por círculos y sensores IR aproximados. No predice resultados reales ni sustituye ensayos físicos.</p></section>
+ </aside>
+</div><div class="help"><strong>Cómo funciona:</strong> cada robot percibe al rival con tres sectores infrarrojos y el borde con dos sensores reflectivos. Su controlador elige <em>buscar, orientar, atacar o escapar</em> mediante estrategias locales o cerebros GPT a través del servidor seguro; las maniobras de seguridad siempre son locales. El botón inicia una cuenta reglamentaria de 5 segundos antes de mover los motores.</div>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const fmt=t=>{t=Math.max(0,Math.ceil(t));return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+const clamp=(a,l,h)=>Math.max(l,Math.min(h,a));const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+const RC=.385, R_LINE=.363, MASS=.5; // meters, kg
+const desc={agresivo:'Busca girando y embiste con potencia máxima al detectar rival.',equilibrado:'Alterna búsqueda curva, alineación frontal y empuje.',defensivo:'Prioriza la recuperación del borde y ataques más controlados.',flanqueador:'Corrige el rumbo en arco para intentar entrar por un costado.',aleatorio:'Varía periódicamente el sentido de exploración con una semilla local.'};
+desc.gpt='El modelo de OpenAI selecciona la táctica cada 2–6 segundos; control físico y seguridad siguen locales.';
+const labels={gpt:'GPT ONLINE',agresivo:'Agresivo',equilibrado:'Equilibrado',defensivo:'Defensivo',flanqueador:'Flanqueador',aleatorio:'Explorador'};
+const el={}; ['stratA','stratB','descA','descB','nameA','nameB','scoreA','scoreB','clock','roundLabel','statusPill','sensorsPill','centerOverlay','overlayKicker','overlayBig','overlayText','controlStatus','startBtn','pauseBtn','resetTop','rpm','rpmVal','reach','reachVal','grip','gripVal','showSensors','showGrid','formation','eventLog','speedText','cam3d','camTop','camReset'].forEach(id=>el[id]=$(id));
+const settings={rpm:500,reach:.4,grip:1,showSensors:true,showGrid:true,speed:1,formation:'automatico'};
+let phase='ready',prevPhase='ready',round=1,lastWinner=-1,time=60,countdown=5,simClock=0,lastFrame=0,carry=0,logCount=0,needsUI=true,uiTick=0;
+const scores=[0,0];const robots=[];
+function robot(i){return {i,x:0,z:0,a:0,v:0,w:0,l:0,r:0,state:'ESPERA',sensors:[false,false,false],lines:[false,false],escapeT:0,escapeSide:0,searchT:0,searchDir:i?1:-1,seed:i?13579:24680,strategy:i?el.stratB.value:el.stratA.value,llmTactic:'equilibrado',llmAgg:.7,llmNextAt:0,llmPending:false,llmHistory:[],lastLogged:'',lastStateAt:0};}
+robots.push(robot(0),robot(1));
+function rand(rb){rb.seed=(1664525*rb.seed+1013904223)>>>0;return rb.seed/4294967296}
+function pos(rb, lx,lz){return {x:rb.x+Math.cos(rb.a)*lx+Math.sin(rb.a)*lz,z:rb.z-Math.sin(rb.a)*lx+Math.cos(rb.a)*lz}}
+function formation(){let f=settings.formation;if(f==='automatico') f=['frontal','diagonal','espaldas'][(round-1)%3];return f}
+function locate(){const [a,b]=robots, f=formation();if(f==='frontal'){Object.assign(a,{x:0,z:-.235,a:0});Object.assign(b,{x:0,z:.235,a:Math.PI})}
+else if(f==='diagonal'){Object.assign(a,{x:-.225,z:-.105,a:1.13});Object.assign(b,{x:.225,z:.105,a:Math.PI+1.13})}
+else {Object.assign(a,{x:-.115,z:0,a:-Math.PI/2});Object.assign(b,{x:.115,z:0,a:Math.PI/2})}
+for(const rb of robots){Object.assign(rb,{v:0,w:0,l:0,r:0,state:'ESPERA',sensors:[false,false,false],lines:[false,false],escapeT:0,searchT:0,searchDir:rb.i?1:-1,lastLogged:''})}
+measure();}
+function reset(){llmNonce++;for(const rb of robots){rb.llmHistory=[];rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.llmPending=false;}clearTrails();round=1;lastWinner=-1;scores[0]=0;scores[1]=0;time=60;countdown=5;simClock=0;carry=0;phase='ready';logCount=0;el.eventLog.innerHTML='<div class="emptylog">Los eventos del asalto aparecerán aquí.</div>';locate();log('Sistema listo. Algoritmos locales cargados.');ui(true)}
+function timeStr(){return fmt(time)}
+function log(msg,tone='neutral'){const row=document.createElement('div');row.className='log-entry';const ts=document.createElement('time');ts.textContent=fmt(60-time);const content=document.createElement('span');content.className=tone;content.textContent=msg;row.append(ts,content);if(!logCount++)el.eventLog.textContent='';el.eventLog.prepend(row);while(el.eventLog.children.length>25)el.eventLog.lastElementChild.remove()}
+function setState(rb,st){if(rb.state===st)return;const old=rb.state;rb.state=st;const notify={'ATAQUE':'ataca frontalmente','BORDE':'detecta el borde: maniobra evasiva','ALINEAR':'corrige orientación','FLANQUEAR':'ejecuta flanqueo','BUSCAR':'explora el dohyo'};
+if(notify[st] && ((st==='ATAQUE'||st==='BORDE') || simClock-rb.lastStateAt>1.1)){log('Robot '+(rb.i?'B':'A')+' '+notify[st]+'.',rb.i?'b':'a');rb.lastStateAt=simClock}}
+function measure(){const reach=settings.reach;for(const rb of robots){const other=robots[1-rb.i];const offs=[-.64,0,.64];rb.sensors=offs.map((d,j)=>{const sensor=pos(rb,(j-1)*.031,.039);const dx=other.x-sensor.x,dz=other.z-sensor.z,dist=Math.hypot(dx,dz);const angle=wrap(Math.atan2(dx,dz)-rb.a-d);return dist<reach+.037 && Math.abs(angle)<(j===1?.36:.38)});
+rb.lines=[-.032,.032].map(x=>{const s=pos(rb,x,.037);return Math.hypot(s.x,s.z)>=R_LINE;});}}
+function stateMachine(rb,dt){const strat=rb.strategy==='gpt'?rb.llmTactic:rb.strategy;const [left,front,right]=rb.sensors;let [lineL,lineR]=rb.lines;
+if(rb.escapeT>0){rb.escapeT-=dt;setState(rb,'BORDE');if(rb.escapeT>.19){rb.l=rb.r=-.88}else{const d=rb.escapeSide;rb.l=d<0?.79:-.6;rb.r=d<0?-.6:.79;}return}
+if(lineL||lineR){rb.escapeT=strat==='defensivo'?.50:.38;rb.escapeSide=lineL&&!lineR?1:lineR&&!lineL?-1:(rb.x*Math.cos(rb.a)-rb.z*Math.sin(rb.a)>0?-1:1); // choose turn away from detected edge
+setState(rb,'BORDE');rb.l=rb.r=-1;return}
+if(front){let p=strat==='defensivo'?.79:strat==='equilibrado'?.83:1;let curve=strat==='flanqueador'?.29:0;rb.l=clamp(p+curve,-1,1);rb.r=clamp(p-curve,-1,1);setState(rb,strat==='flanqueador'?'FLANQUEAR':'ATAQUE');return}
+if(left||right){let p=strat==='agresivo'?.75:.56;rb.l=left?p:-p*.48;rb.r=left?-p*.48:p;setState(rb,'ALINEAR');return}
+setState(rb,'BUSCAR');rb.searchT-=dt;if(strat==='aleatorio'&&rb.searchT<=0){rb.searchT=.28+rand(rb)*.9;rb.searchDir=rand(rb)>.5?1:-1}
+if(strat==='agresivo'){rb.l=rb.searchDir<0?.83:.60;rb.r=rb.searchDir<0?.60:.83}
+else if(strat==='defensivo'){rb.l=rb.searchDir<0?.63:-.63;rb.r=-rb.l}
+else if(strat==='flanqueador'){rb.l=.75;rb.r=.28}
+else if(strat==='aleatorio'){rb.l=rb.searchDir<0?.72:-.28;rb.r=rb.searchDir<0?-.28:.72}
+else{rb.l=rb.searchDir<0?.65:.34;rb.r=rb.searchDir<0?.34:.65}}
+function move(dt){measure();for(const rb of robots){stateMachine(rb,dt);if(rb.strategy==='gpt'){const p=.5+.5*rb.llmAgg;rb.l*=p;rb.r*=p;}let targetV=(rb.l+rb.r)/2*.50*(settings.rpm/500);let targetW=(rb.r-rb.l)/2*8.4*(settings.rpm/500);const response=1-Math.exp(-dt*(11*settings.grip));rb.v+=(targetV-rb.v)*response;rb.w+=(targetW-rb.w)*response;rb.a=wrap(rb.a+rb.w*dt);rb.x+=Math.sin(rb.a)*rb.v*dt;rb.z+=Math.cos(rb.a)*rb.v*dt}
+// 2D rigid-contact approximation: circular collision envelope, relative pushing power and mass-weighted separation.
+const a=robots[0],b=robots[1],dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||.0001,minD=.099;
+if(d<minD){const nx=dx/d,nz=dz/d, penetration=minD-d;
+const pa=Math.max(0,(Math.sin(a.a)*nx+Math.cos(a.a)*nz)*a.v)*settings.grip*MASS;
+const pb=Math.max(0,-(Math.sin(b.a)*nx+Math.cos(b.a)*nz)*b.v)*settings.grip*MASS;
+const ka=(pb+.035)/(pa+pb+.07),kb=(pa+.035)/(pa+pb+.07);
+a.x-=nx*penetration*ka;b.x+=nx*penetration*kb;a.z-=nz*penetration*ka;b.z+=nz*penetration*kb;
+if(pa>pb){b.x+=nx*dt*(pa-pb)*3.0;b.z+=nz*dt*(pa-pb)*3.0}else if(pb>pa){a.x-=nx*dt*(pb-pa)*3.0;a.z-=nz*dt*(pb-pa)*3.0}
+}
+// A robot is declared outside when its centre passes the virtual dohyo circumference.
+const out=robots.map(r=>Math.hypot(r.x,r.z)>RC+.015);
+if(out[0]||out[1]){if(out[0]&&out[1])endRound(-1,'Salida simultánea');else endRound(out[0]?1:0,'Fuera del dohyo')}
+}
+function endRound(winner,cause){if(phase!=='running')return;llmNonce++;for(const rb of robots){rb.l=rb.r=rb.v=rb.w=0}
+phase='round_end';lastWinner=winner;if(winner>=0){scores[winner]++;log('Robot '+(winner?'B':'A')+' gana el asalto '+round+'. '+cause+'.',winner?'b':'a');if(scores[winner]>=2){phase='match_end';log('¡Combate finalizado! Campeón: robot '+(winner?'B':'A')+'.')}}else log('Asalto sin ganador: '+cause+'.');ui(true)}
+function begin(){llmNonce++;if(phase==='match_end')reset();if(phase==='ready'||phase==='round_end'){clearTrails();if(phase==='round_end'){if(scores[0]>=2||scores[1]>=2){reset();}else if(lastWinner>=0){round++;}}
+locate();time=60;countdown=5;phase='countdown';log('Asalto '+round+': cuenta regresiva de 5 segundos.');ui(true)}else if(phase==='paused'){phase=prevPhase;ui(true)}}
+function togglePause(){if(phase==='running'||phase==='countdown'){prevPhase=phase;phase='paused';log('Simulación pausada.')}else if(phase==='paused'){phase=prevPhase;log('Simulación reanudada.')}ui(true)}
+
+// CEREBROS GPT: credencial de laboratorio; NO es la clave de OpenAI.
+function safeGetAccess(){try{return sessionStorage.getItem('sumolab_access')||'';}catch{return '';}}
+function safeSaveAccess(value){try{if(value)sessionStorage.setItem('sumolab_access',value);else sessionStorage.removeItem('sumolab_access');}catch{}}
+let accessToken=safeGetAccess();
+async function unlockGPT(){
+  const input=document.getElementById('accessCode');
+  const state=document.getElementById('accessState');
+  const proposed=input.value.trim();
+  if(!proposed){state.textContent='Introduce la clave de acceso de Render.';return;}
+  state.textContent='Validando acceso...';
+  try{
+    const r=await fetch('/api/auth',{method:'POST',headers:{'X-Sumolab-Access':proposed}});
+    if(!r.ok)throw new Error('Código incorrecto o servidor no disponible.');
+    accessToken=proposed;
+    safeSaveAccess(proposed);
+    input.value='';
+    state.textContent='Acceso validado. Puedes usar GPT ONLINE con ambos robots.';
+    log('Acceso privado a GPT validado.');
+  }catch(e){accessToken='';safeSaveAccess('');state.textContent=String(e.message||e);}
+}
+function checkSavedAccess(){
+  if(accessToken){
+    document.getElementById('accessState').textContent='Hay una clave de acceso guardada en esta pestaña. Puedes probar GPT.';
+  }
+  document.getElementById('unlockGPT').addEventListener('click',unlockGPT);
+  document.getElementById('accessCode').addEventListener('keydown',e=>{if(e.key==='Enter')unlockGPT();});
+}
+// CEREBROS GPT: solo decisiones tacticas. El controlador local conserva prioridad.
+let llmNonce=0;
+async function showProviderStatus(){
+  const pill=document.querySelector('.live-pill');
+  try{
+    const res=await fetch('/api/status');
+    if(!res.ok)throw new Error('Servidor sin respuesta');
+    const data=await res.json();
+    if(data.modo==='demostracion'){
+      pill.textContent='DEMO MOCK · NO ES UN LLM';
+      log('MODO DE PRUEBA: decisiones simuladas, sin consumir OpenAI.');
+    }else if(data.llmDisponible){
+      pill.textContent='GPT ONLINE · '+String(data.modelo||'API');
+      log('Servidor de OpenAI configurado. Esperando combate.');
+    }else{
+      pill.textContent='API NO CONFIGURADA';
+      log('Configura OPENAI_API_KEY en el servidor para habilitar GPT.');
+    }
+  }catch{
+    pill.textContent='SIN SERVIDOR API';
+    log('El modo GPT requiere abrir la web desde el servidor Node.js.');
+  }
+}
+async function requestLLM(rb,nonce){
+  const obs={ir:rb.sensors.map(Boolean),borde:rb.lines.map(Boolean),
+    tiempo_restante:+time.toFixed(1),segundos_transcurridos:+(60-time).toFixed(1),
+    estrategia_actual:rb.llmTactic,asaltos_ganados:[...scores],historial:rb.llmHistory.slice(-3)};
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),8500);
+  try{
+    if(!accessToken)throw new Error('Introduce y valida el código privado del laboratorio.');
+    const res=await fetch('/api/decide',{method:'POST',headers:{'Content-Type':'application/json','X-Sumolab-Access':accessToken},body:JSON.stringify({bot:rb.i?'B':'A',obs}),signal:controller.signal});
+    const decision=await res.json();
+    if(res.status===401){accessToken='';safeSaveAccess('');document.getElementById('accessState').textContent='Acceso incorrecto: vuelve a introducir el código.';}
+    if(!res.ok)throw new Error(decision.error||'Error de API');
+    if(nonce!==llmNonce||rb.strategy!=='gpt'||!['running','countdown','paused'].includes(phase))return;
+    if(!['agresivo','equilibrado','defensivo','flanqueador','aleatorio'].includes(decision.tactica))return;
+    rb.llmTactic=decision.tactica;
+    rb.llmAgg=clamp(Number(decision.agresividad)||.7,0,1);
+    rb.llmNextAt=simClock+clamp(Number(decision.duracion_s)||4,2,6)+(phase==='countdown'?countdown:0);
+    rb.llmHistory.push('Elegí '+rb.llmTactic+'; '+String(decision.motivo||'').slice(0,100));
+    rb.llmHistory=rb.llmHistory.slice(-3);
+    log('GPT '+(rb.i?'B':'A')+' ⇒ '+labels[decision.tactica]+'. '+String(decision.motivo||'').slice(0,90),rb.i?'b':'a');
+    ui(true);
+  }catch(e){
+    if(nonce===llmNonce&&rb.strategy==='gpt'){
+      rb.llmNextAt=simClock+5;
+      log('GPT '+(rb.i?'B':'A')+' sin respuesta: se conserva '+labels[rb.llmTactic]+'. ('+String(e.message||e).slice(0,100)+')');
+    }
+  }finally{clearTimeout(timeout);rb.llmPending=false;}
+}
+function tickLLM(){
+  for(const rb of robots){
+    if(rb.strategy==='gpt'&&!rb.llmPending&&simClock>=rb.llmNextAt){
+      rb.llmPending=true;rb.llmNextAt=simClock+6;
+      void requestLLM(rb,llmNonce);
+    }
+  }
+}
+
+function update(dt){simClock+=dt;if(phase==='countdown'||phase==='running')tickLLM();if(phase==='countdown'){countdown=Math.max(0,countdown-dt);if(countdown<=0){phase='running';log('¡Motores habilitados! Comienza el asalto.');robots.forEach(r=>{r.state='BUSCAR'});ui(true)}}else if(phase==='running'){time=Math.max(0,time-dt);move(dt);if(time<=0)endRound(-1,'Tiempo agotado (60 s)')}}
+function ui(force=false){needsUI=true;if(!force&&uiTick<.09)return;uiTick=0;el.scoreA.textContent=scores[0];el.scoreB.textContent=scores[1];el.clock.textContent=fmt(time);el.roundLabel.textContent='ASALTO '+round+' / 3';el.nameA.textContent=labels[el.stratA.value];el.nameB.textContent=labels[el.stratB.value];let sText={ready:'● EN ESPERA',countdown:'● CUENTA REGRESIVA',running:'● COMBATE ACTIVO',paused:'Ⅱ PAUSADO',round_end:'● ASALTO FINALIZADO',match_end:'◆ COMBATE TERMINADO'};el.statusPill.textContent=sText[phase];el.sensorsPill.textContent=settings.showSensors?'Conos IR visibles':'Conos IR ocultos';el.controlStatus.textContent=phase==='running'?'EN CURSO':phase==='countdown'?'PREPARACIÓN':phase==='paused'?'PAUSADO':phase==='match_end'?'FINALIZADO':'PREPARADO';
+el.startBtn.textContent=phase==='round_end'?(lastWinner<0?'▶ Repetir asalto':'▶ Siguiente asalto'):phase==='match_end'?'↺ Nuevo combate':phase==='paused'?'▶ Reanudar':phase==='running'||phase==='countdown'?'● En curso':'▶ Iniciar asalto';el.startBtn.disabled=phase==='running'||phase==='countdown';el.startBtn.style.opacity=el.startBtn.disabled?'.48':'1';el.pauseBtn.disabled=!['countdown','running','paused'].includes(phase);el.pauseBtn.textContent=phase==='paused'?'▶':'Ⅱ';
+if(['running','paused'].includes(phase)){el.centerOverlay.classList.add('hidden')}else{el.centerOverlay.classList.remove('hidden');if(phase==='ready'){el.overlayKicker.textContent='ARENA LISTA';el.overlayBig.textContent='VS';el.overlayText.textContent='Configura tus robots y pulsa “Iniciar asalto”.'}else if(phase==='countdown'){el.overlayKicker.textContent='LOS MOTORES ESPERAN';el.overlayBig.textContent=String(Math.max(1,Math.ceil(countdown)));el.overlayText.textContent='Arranque reglamentario · 5 segundos'}else if(phase==='round_end'){el.overlayKicker.textContent='ASALTO '+round+' TERMINADO';el.overlayBig.textContent=lastWinner<0?'—':lastWinner===0?'A':'B';el.overlayText.textContent=lastWinner<0?'Empate: se repite el mismo asalto.':'Punto para el robot '+(lastWinner===0?'A':'B')+'. Inicia el siguiente asalto.'}else if(phase==='match_end'){el.overlayKicker.textContent='GANADOR DEL COMBATE';el.overlayBig.textContent=scores[0]>scores[1]?'A':'B';el.overlayText.textContent='Victoria por '+Math.max(...scores)+' a '+Math.min(...scores)+' · mejor de tres'}}
+for(const rb of robots){const pre=rb.i?'b':'a';$("state"+(rb.i?'B':'A')).textContent=rb.state;['Left','Center','Right'].forEach((suffix,j)=>{const node=$(pre+suffix);node.textContent=rb.sensors[j]?'ON':'OFF';node.className=(rb.sensors[j]?'on ':'')+(rb.i?'orange':'blue')});for(let j=0;j<2;j++){const n=$(pre+(j?'LineR':'LineL'));n.textContent=rb.lines[j]?'BORDE':'LIBRE';n.className=rb.lines[j]?'warn':''}}needsUI=false}
+function hookControls(){['A','B'].forEach(s=>{const select=el['strat'+s];select.addEventListener('change',()=>{el['desc'+s].textContent=desc[select.value];const rb=robots[s==='A'?0:1];rb.strategy=select.value;rb.llmNextAt=0;rb.llmTactic='equilibrado';if(select.value==='gpt'&&settings.speed!==1){document.querySelector('[data-speed="1"]')?.click();}log('Robot '+s+': estrategia '+labels[select.value]+'.',s==='A'?'a':'b');ui(true)});el['desc'+s].textContent=desc[select.value]});el.rpm.addEventListener('input',()=>{settings.rpm=+el.rpm.value;el.rpmVal.textContent=settings.rpm+' RPM'});el.reach.addEventListener('input',()=>{settings.reach=+el.reach.value/100;el.reachVal.textContent=el.reach.value+' cm';buildBeams();measure();ui(true)});el.grip.addEventListener('input',()=>{settings.grip=+el.grip.value/100;el.gripVal.textContent=el.grip.value+'%'});el.formation.addEventListener('change',()=>{settings.formation=el.formation.value;if(phase==='ready'||phase==='round_end')locate();else log('La formación se aplicará en el siguiente asalto.');ui(true)});el.showSensors.addEventListener('change',()=>{settings.showSensors=el.showSensors.checked;ui(true)});el.showGrid.addEventListener('change',()=>{settings.showGrid=el.showGrid.checked});el.startBtn.addEventListener('click',begin);el.pauseBtn.addEventListener('click',togglePause);el.resetTop.addEventListener('click',reset);document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{if(robots.some(r=>r.strategy==='gpt')&&+b.dataset.speed!==1){log('Modo GPT: simulación limitada a 1× para respetar el ritmo de la API.');return;}settings.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('active',x===b));el.speedText.textContent=settings.speed+'×'}));document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea,button'))return;if(e.code==='Space'){e.preventDefault();if(phase==='ready'||phase==='round_end')begin();else togglePause()}if(e.key.toLowerCase()==='r')reset();if(e.key.toLowerCase()==='c')viewDefault();if(e.key.toLowerCase()==='s'){el.showSensors.checked=!el.showSensors.checked;settings.showSensors=el.showSensors.checked;ui(true)}})}
+// ─────────────────────────────────────────────────────────────────────
+// Small dependency-free WebGL 3D engine. Geometry is expressed in meters.
+// El renderizador es local, pero el modo GPT hace peticiones HTTP a nuestro backend protegido.
+const canvas=$('gl');const gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'});
+let rendererReady=!!gl;
+// If WebGL is unavailable, render the same 3D geometry with an offline Canvas 2D perspective fallback.
+let program=null,attrib={},uni={},geo={},botMeshes=[],beamMeshes=[],trailMesh=null,drawFrame=0;
+const I=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+const trans=(x,y,z,a=0)=>{const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,-s,0,0,1,0,0,s,0,c,0,x,y,z,1])};
+const xyz=hex=>{const h=hex.replace('#','');return [parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255]};
+const mixC=(a,b,t)=>a.map((v,j)=>v*(1-t)+b[j]*t);
+const color={a:xyz('#54d6e7'),b:xyz('#ffab5e'),metal:xyz('#cbd9e5'),dark:xyz('#172433'),pitch:xyz('#0c1320'),white:xyz('#e6eef4')};
+class G{
+ constructor(){this.p=[];this.n=[];this.c=[];this.idx=[]}
+ tri(a,b,c,col,normal){this.poly([a,b,c],col,normal)}
+ quad(a,b,c,d,col,normal){this.poly([a,b,c,d],col,normal)}
+ poly(pts,col,norm){let j=this.p.length/3;let n=norm||cross(sub(pts[1],pts[0]),sub(pts[2],pts[0]));const scale=Math.hypot(...n)||1;n=n.map(v=>v/scale);for(const p of pts){this.p.push(...p);this.n.push(...n);this.c.push(...col)}for(let k=1;k<pts.length-1;k++)this.idx.push(j,j+k,j+k+1)}
+ box(x,y,z,w,h,d,col){const x0=x-w/2,x1=x+w/2,y0=y-h/2,y1=y+h/2,z0=z-d/2,z1=z+d/2;this.quad([x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1],col,[0,1,0]);this.quad([x1,y0,z0],[x0,y0,z0],[x0,y0,z1],[x1,y0,z1],col,[0,-1,0]);this.quad([x0,y0,z1],[x0,y1,z1],[x1,y1,z1],[x1,y0,z1],col,[0,0,1]);this.quad([x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z0],col,[0,0,-1]);this.quad([x1,y0,z1],[x1,y1,z1],[x1,y1,z0],[x1,y0,z0],col,[1,0,0]);this.quad([x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1],col,[-1,0,0])}
+ ring(r0,r1,y,col,N=100){for(let i=0;i<N;i++){let a=i*2*Math.PI/N,b=(i+1)*2*Math.PI/N;this.quad([r0*Math.sin(a),y,r0*Math.cos(a)],[r1*Math.sin(a),y,r1*Math.cos(a)],[r1*Math.sin(b),y,r1*Math.cos(b)],[r0*Math.sin(b),y,r0*Math.cos(b)],col,[0,1,0])}}
+ disk(r,y,col,N=90){for(let i=0;i<N;i++){let a=i*2*Math.PI/N,b=(i+1)*2*Math.PI/N;this.tri([0,y,0],[r*Math.sin(a),y,r*Math.cos(a)],[r*Math.sin(b),y,r*Math.cos(b)],col,[0,1,0])}}
+ cylinder(r,yt,yb,col,sideCol=col,N=96){this.disk(r,yt,col,N);for(let i=0;i<N;i++){let a=i*2*Math.PI/N,b=(i+1)*2*Math.PI/N;let px=r*Math.sin(a),pz=r*Math.cos(a),qx=r*Math.sin(b),qz=r*Math.cos(b);this.quad([px,yb,pz],[qx,yb,qz],[qx,yt,qz],[px,yt,pz],sideCol,[Math.sin((a+b)/2),0,Math.cos((a+b)/2)])}}
+ wheel(x,y,z,wide,r,col){const x0=x-wide/2,x1=x+wide/2,N=16;for(let i=0;i<N;i++){let a=i*2*Math.PI/N,b=(i+1)*2*Math.PI/N;const v0=[Math.sin(a)*r,Math.cos(a)*r],v1=[Math.sin(b)*r,Math.cos(b)*r];const c=i%4===0?mixC(col,[.15,.2,.25],.18):col;this.quad([x0,y+v0[0],z+v0[1]],[x1,y+v0[0],z+v0[1]],[x1,y+v1[0],z+v1[1]],[x0,y+v1[0],z+v1[1]],c,[0,Math.sin((a+b)/2),Math.cos((a+b)/2)]);this.tri([x0,y,z],[x0,y+v1[0],z+v1[1]],[x0,y+v0[0],z+v0[1]],mixC(col,[.22,.25,.3],.40),[-1,0,0]);this.tri([x1,y,z],[x1,y+v0[0],z+v0[1]],[x1,y+v1[0],z+v1[1]],mixC(col,[.22,.25,.3],.40),[1,0,0]);}
+ this.box(x+(x<0?-.010:.010),y,z,.002,.010,.010,xyz('#94a8b7'))}
+ }
+function sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]}
+function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
+function uploaded(g){if(!rendererReady)return {cpu:true,p:g.p,n:g.n,c:g.c,idx:g.idx,count:g.idx.length};const out={p:gl.createBuffer(),n:gl.createBuffer(),c:gl.createBuffer(),idx:gl.createBuffer(),count:g.idx.length};gl.bindBuffer(gl.ARRAY_BUFFER,out.p);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(g.p),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,out.n);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(g.n),gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,out.c);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(g.c),gl.STATIC_DRAW);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,out.idx);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(g.idx),gl.STATIC_DRAW);return out}
+function removeMesh(m){if(!m||!rendererReady)return;['p','n','c','idx'].forEach(k=>gl.deleteBuffer(m[k]))}
+function makeRobot(i){const g=new G(),body=i?color.b:color.a,deep=mixC(body,xyz('#091f2f'),.65),rim=mixC(body,[1,1,1],.38),black=xyz('#141c26');
+g.box(0,.028,-.004,.072,.029,.074,black);g.box(0,.044,-.009,.074,.024,.068,body);
+g.box(0,.058,-.012,.060,.004,.054,deep);
+g.box(0,.061,-.016,.037,.002,.034,rim);
+g.box(0,.063,-.016,.027,.002,.022,xyz('#142b40'));
+g.box(0,.065,-.016,.015,.002,.014,xyz('#385269'));
+// chassis front reinforcement and left/right fenders
+g.box(0,.030,.025,.080,.025,.010,deep);
+g.box(-.031,.040,.000,.006,.014,.068,deep);g.box(.031,.040,.000,.006,.014,.068,deep);
+// wedge is a true 3D ramp from z=.023 to z=.049
+const w=.039,z0=.023,z1=.049,y0=.004,y1=.030;
+g.quad([-w,y1,z0],[w,y1,z0],[w,y0,z1],[-w,y0,z1],xyz('#a8b8c6'));
+g.quad([-w,.003,z0],[-w,.003,z1],[w,.003,z1],[w,.003,z0],deep);
+g.tri([-w,.003,z0],[-w,y1,z0],[-w,y0,z1],deep);
+g.tri([w,.003,z0],[w,y0,z1],[w,y1,z0],deep);
+g.box(0,.013,.047,.074,.008,.003,xyz('#e4eaf1'));
+// opposing motor wheels
+for(const side of [-1,1]){g.wheel(side*.041,.022,-.015,.017,.0215,xyz('#121820'));
+g.box(side*.039,.045,-.016,.006,.012,.029,deep)}
+// Three IR units across the nose, each with an emitter LED.
+for(const xx of [-.029,0,.029]){g.box(xx,.024,.037,.014,.013,.009,black);g.box(xx,.028,.043,.006,.006,.002,xyz('#71e8ed'))}
+// battery and ESP32 outline on the top deck
+for(let j=0;j<4;j++){g.box(-.018+j*.012,.064,-.025,.002,.003,.012,xyz('#6c92a5'))}
+g.box(0,.064,-.039,.022,.003,.011,xyz('#263849'));
+// perimeter visual accents
+for(const x of [-.027,.027])g.box(x,.058,-.032,.003,.003,.014,rim);
+return uploaded(g)}
+function makeBeam(i,s){const g=new G();const startX=(s-1)*.031,z=.040,dir=[-.64,0,.64][s],reach=settings.reach,half=s===1?.36:.38;const shade=i?xyz('#f9a867'):xyz('#59e8ed');const N=14;for(let n=0;n<N;n++){const a=dir-half+2*half*n/N,b=dir-half+2*half*(n+1)/N;g.tri([startX,.012,z],[startX+Math.sin(a)*reach,.012,z+Math.cos(a)*reach],[startX+Math.sin(b)*reach,.012,z+Math.cos(b)*reach],shade,[0,1,0]);}return uploaded(g)}
+function buildBeams(){for(const mesh of beamMeshes.flat())removeMesh(mesh);beamMeshes=[0,1].map(i=>[0,1,2].map(s=>makeBeam(i,s)))}
+function makeGround(){const g=new G();g.box(0,-.087,0,5,.012,5,xyz('#0c1824'));return uploaded(g)}
+function makeGrid(){const g=new G();const line=xyz('#213448');for(let k=-12;k<=12;k++){let p=k*.105;g.box(p,-.079,0,.0013,.001,2.6,line);g.box(0,-.079,p,2.6,.001,.0013,line)}return uploaded(g)}
+function makeBase(){let g=new G();g.cylinder(.443,-.036,-.068,xyz('#1a303f'),xyz('#192839'));g.ring(.431,.441,-.035,xyz('#294c60'));g.ring(.405,.409,-.034,xyz('#2b6074'));return uploaded(g)}
+function makeArena(){let g=new G();g.cylinder(RC,.004,-.028,xyz('#0d141c'),xyz('#1e2e38'));g.ring(R_LINE,RC,.005,xyz('#d7dfe5'));g.disk(R_LINE,.007,xyz('#141b23'));
+// Subtle central line & registration marks.
+g.ring(.028,.029,.008,xyz('#23323b'));g.disk(.005,.009,xyz('#24424a'));
+for(let j=0;j<48;j++){const a=j*Math.PI/24,r0=.391,r1=j%4===0?.408:.399;g.quad([Math.sin(a-.002)*r0,.005,Math.cos(a-.002)*r0],[Math.sin(a-.002)*r1,.005,Math.cos(a-.002)*r1],[Math.sin(a+.002)*r1,.005,Math.cos(a+.002)*r1],[Math.sin(a+.002)*r0,.005,Math.cos(a+.002)*r0],j%4===0?xyz('#679caa'):xyz('#365365'),[0,1,0])}
+return uploaded(g)}
+function makeRobotShadow(){const g=new G();g.disk(.052,.011,xyz('#050b0f'),32);return uploaded(g)}
+function makeTrail(){const g=new G();for(const rb of robots){const trail=rb.trail||[];for(let i=0;i<trail.length;i++){const p=trail[i],t=i/trail.length,main=rb.i?color.b:color.a,cl=mixC(xyz('#151e26'),main,.16+.28*t);const r=.0015+(.0019*t);for(let j=0;j<6;j++){const a=j*Math.PI/3,b=(j+1)*Math.PI/3;g.tri([p.x,.011,p.z],[p.x+r*Math.cos(a),.011,p.z+r*Math.sin(a)],[p.x+r*Math.cos(b),.011,p.z+r*Math.sin(b)],cl,[0,1,0])}}}
+if(g.idx.length>65000)return trailMesh;return uploaded(g)}
+const vert=`attribute vec3 aPos;attribute vec3 aNormal;attribute vec3 aColor;uniform mat4 uProjection;uniform mat4 uView;uniform mat4 uModel;varying vec3 vColor;varying vec3 vNormal;varying vec3 vWorld;void main(){vec4 w=uModel*vec4(aPos,1.0);vWorld=w.xyz;vNormal=mat3(uModel)*aNormal;vColor=aColor;gl_Position=uProjection*uView*w;}`;
+const frag=`precision mediump float;varying vec3 vColor;varying vec3 vNormal;varying vec3 vWorld;uniform vec3 uEye;uniform float uAlpha;void main(){vec3 n=normalize(vNormal);vec3 light=normalize(vec3(-0.38,1.0,0.66));float diffuse=max(dot(n,light),0.0);float ambience=0.51;float lambert=ambience+0.48*diffuse;vec3 c=vColor*lambert;float rim=pow(1.0-max(dot(n,normalize(uEye-vWorld)),0.0),2.0)*0.065;c+=vec3(rim);float f=clamp((length(vWorld-uEye)-1.0)*0.10,0.0,0.36);c=mix(c,vec3(0.041,0.081,0.125),f);gl_FragColor=vec4(c,uAlpha);}`;
+function shader(src,type){const sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh}
+function initWebgl(){if(!rendererReady){geo={floor:makeGround(),grid:makeGrid(),base:makeBase(),arena:makeArena(),shadow:makeRobotShadow()};botMeshes=[makeRobot(0),makeRobot(1)];buildBeams();return;}program=gl.createProgram();gl.attachShader(program,shader(vert,gl.VERTEX_SHADER));gl.attachShader(program,shader(frag,gl.FRAGMENT_SHADER));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));gl.useProgram(program);['aPos','aNormal','aColor'].forEach(k=>attrib[k]=gl.getAttribLocation(program,k));['uProjection','uView','uModel','uEye','uAlpha'].forEach(k=>uni[k]=gl.getUniformLocation(program,k));gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+geo={floor:makeGround(),grid:makeGrid(),base:makeBase(),arena:makeArena(),shadow:makeRobotShadow()};botMeshes=[makeRobot(0),makeRobot(1)];buildBeams()}
+function perspective(fovy,aspect,near,far){const f=1/Math.tan(fovy/2),nf=1/(near-far);return new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)*nf,-1,0,0,2*far*near*nf,0])}
+function normalize(v){const d=Math.hypot(...v)||1;return v.map(x=>x/d)}
+function lookAt(eye,target,up=[0,1,0]){const z=normalize(sub(eye,target)),x=normalize(cross(up,z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*eye[0]+x[1]*eye[1]+x[2]*eye[2]),-(y[0]*eye[0]+y[1]*eye[1]+y[2]*eye[2]),-(z[0]*eye[0]+z[1]*eye[1]+z[2]*eye[2]),1])}
+function drawMesh(mesh,model=I(),alpha=1){if(!mesh||!mesh.count)return;gl.uniformMatrix4fv(uni.uModel,false,model);gl.uniform1f(uni.uAlpha,alpha);for(const [attr,key] of [['aPos','p'],['aNormal','n'],['aColor','c']]){gl.bindBuffer(gl.ARRAY_BUFFER,mesh[key]);gl.enableVertexAttribArray(attrib[attr]);gl.vertexAttribPointer(attrib[attr],3,gl.FLOAT,false,0,0)}gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.idx);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0)}
+const camera={az:.45,el:.99,dist:1.15,mode:'3d',dragging:false,x:0,y:0};
+function viewDefault(){camera.az=.45;camera.el=.99;camera.dist=1.15;camera.mode='3d';showCameraMode()}
+function showCameraMode(){el.cam3d.classList.toggle('active',camera.mode==='3d');el.camTop.classList.toggle('active',camera.mode==='top')}
+function setCamera(mode){camera.mode=mode;if(mode==='top'){camera.el=1.565;camera.az=0;camera.dist=1.04}else{camera.el=.99;camera.az=.45;camera.dist=1.15}showCameraMode()}
+function setupCamera(){el.cam3d.onclick=()=>setCamera('3d');el.camTop.onclick=()=>setCamera('top');el.camReset.onclick=viewDefault;canvas.addEventListener('pointerdown',ev=>{camera.dragging=true;camera.x=ev.clientX;camera.y=ev.clientY;canvas.setPointerCapture(ev.pointerId)});canvas.addEventListener('pointermove',ev=>{if(!camera.dragging)return;const dx=ev.clientX-camera.x,dy=ev.clientY-camera.y;camera.x=ev.clientX;camera.y=ev.clientY;camera.az-=dx*.008;camera.el=clamp(camera.el+dy*.006,.21,1.565);camera.mode='free';el.cam3d.classList.remove('active');el.camTop.classList.remove('active')});canvas.addEventListener('pointerup',()=>camera.dragging=false);canvas.addEventListener('pointercancel',()=>camera.dragging=false);canvas.addEventListener('wheel',ev=>{ev.preventDefault();camera.dist=clamp(camera.dist+ev.deltaY*.0009,.72,2.2)},{passive:false})}
+function render(){if(!rendererReady){renderFallback();return;}const W=Math.max(10,canvas.clientWidth),H=Math.max(10,canvas.clientHeight),dpr=Math.min(window.devicePixelRatio||1,2);let pw=Math.floor(W*dpr),ph=Math.floor(H*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;gl.viewport(0,0,pw,ph)}gl.clearColor(.037,.076,.113,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+const az=camera.az,elv=camera.el,D=camera.dist,eye=[D*Math.sin(az)*Math.cos(elv),D*Math.sin(elv)+.018,D*Math.cos(az)*Math.cos(elv)],target=[0,0,0];gl.useProgram(program);gl.uniformMatrix4fv(uni.uProjection,false,perspective(47*Math.PI/180,W/H,.02,8));gl.uniformMatrix4fv(uni.uView,false,lookAt(eye,target));gl.uniform3fv(uni.uEye,new Float32Array(eye));
+drawMesh(geo.floor);if(settings.showGrid)drawMesh(geo.grid);drawMesh(geo.base);drawMesh(geo.arena);
+if(trailMesh)drawMesh(trailMesh);
+// Transparent effects are drawn before the solid robot chassis.
+gl.depthMask(false);for(const rb of robots){const tm=trans(rb.x,0,rb.z,rb.a);drawMesh(geo.shadow,trans(rb.x,.002,rb.z,rb.a),.40);if(settings.showSensors)for(let j=0;j<3;j++)drawMesh(beamMeshes[rb.i][j],tm,rb.sensors[j]?.22:.055)}gl.depthMask(true);
+for(const rb of robots)drawMesh(botMeshes[rb.i],trans(rb.x,0,rb.z,rb.a));drawFrame++}
+
+// Canvas perspective fallback: same triangular meshes and 3D camera, painter order.
+// It runs even on locked-down browsers where WebGL contexts are prohibited.
+function renderFallback(){
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const W=canvas.clientWidth,H=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.5);
+ if(canvas.width!==Math.floor(W*dpr)||canvas.height!==Math.floor(H*dpr)){canvas.width=Math.floor(W*dpr);canvas.height=Math.floor(H*dpr)}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#091827';ctx.fillRect(0,0,W,H);
+ const az=camera.az,e=camera.el,d=camera.dist;
+ const eye=[d*Math.sin(az)*Math.cos(e),d*Math.sin(e)+.018,d*Math.cos(az)*Math.cos(e)];
+ const fwd=normalize([-eye[0],-eye[1],-eye[2]]),right=normalize(cross(fwd,[0,1,0])),up=cross(right,fwd),scale=H/(2*Math.tan(47*Math.PI/360));
+ function drawCPU(mesh,model=I(),alpha=1){if(!mesh||!mesh.count)return;
+   const P=mesh.p,C=mesh.c,N=mesh.n,M=model,projections=[],depths=[],shades=[];
+   const light=normalize([-.38,1,.66]);
+   for(let k=0;k<P.length;k+=3){let x=P[k],y=P[k+1],z=P[k+2],wx=M[0]*x+M[8]*z+M[12],wy=y+M[13],wz=M[2]*x+M[10]*z+M[14],vx=wx-eye[0],vy=wy-eye[1],vz=wz-eye[2];let dep=Math.max(.05,vx*fwd[0]+vy*fwd[1]+vz*fwd[2]);projections.push(W/2+(vx*right[0]+vy*right[1]+vz*right[2])*scale/dep,H/2-(vx*up[0]+vy*up[1]+vz*up[2])*scale/dep);depths.push(dep);
+    let nx=M[0]*N[k]+M[8]*N[k+2],ny=N[k+1],nz=M[2]*N[k]+M[10]*N[k+2];let l=.51+.48*Math.max(0,nx*light[0]+ny*light[1]+nz*light[2]);shades.push(Math.round(C[k]*l*255),Math.round(C[k+1]*l*255),Math.round(C[k+2]*l*255))}
+   const tris=[];for(let k=0;k<mesh.idx.length;k+=3){let a=mesh.idx[k],b=mesh.idx[k+1],c=mesh.idx[k+2];tris.push([a,b,c,(depths[a]+depths[b]+depths[c])/3])}tris.sort((a,b)=>b[3]-a[3]);ctx.globalAlpha=alpha;
+   for(const [a,b,c] of tris){let ai=a*2,bi=b*2,ci=c*2;ctx.beginPath();ctx.moveTo(projections[ai],projections[ai+1]);ctx.lineTo(projections[bi],projections[bi+1]);ctx.lineTo(projections[ci],projections[ci+1]);ctx.closePath();let j=a*3;ctx.fillStyle='rgb('+shades[j]+','+shades[j+1]+','+shades[j+2]+')';ctx.fill()}
+   ctx.globalAlpha=1
+ }
+ drawCPU(geo.floor);if(settings.showGrid)drawCPU(geo.grid);drawCPU(geo.base);drawCPU(geo.arena);if(trailMesh)drawCPU(trailMesh);
+ const sorted=[...robots].sort((a,b)=>{const depth=r=>(r.x-eye[0])*fwd[0]-eye[1]*fwd[1]+(r.z-eye[2])*fwd[2];return depth(b)-depth(a)});
+ for(const rb of sorted){drawCPU(geo.shadow,trans(rb.x,.002,rb.z,rb.a),.45);if(settings.showSensors)for(let j=0;j<3;j++)drawCPU(beamMeshes[rb.i][j],trans(rb.x,0,rb.z,rb.a),rb.sensors[j]?.26:.08)}
+ for(const rb of sorted)drawCPU(botMeshes[rb.i],trans(rb.x,0,rb.z,rb.a));drawFrame++;
+}
+function frame(now){const elapsed=lastFrame?Math.min((now-lastFrame)/1000,.06):0;lastFrame=now;carry+=elapsed*settings.speed;let iteration=0;const fixed=.002;while(carry>=fixed&&iteration++<150){if(phase==='running'||phase==='countdown'){update(fixed);if(phase==='running')for(const rb of robots){rb.pathT=(rb.pathT||0)+fixed;if(rb.pathT>.065){rb.pathT=0;rb.trail.push({x:rb.x,z:rb.z});if(rb.trail.length>65)rb.trail.shift();trailDirty=true}}}carry-=fixed}if(iteration>=150)carry=0;
+uiTick+=elapsed;if(trailDirty&&drawFrame%6===0){removeMesh(trailMesh);trailMesh=makeTrail();trailDirty=false}if(needsUI||uiTick>.12)ui();render();requestAnimationFrame(frame)}
+let trailDirty=false;// Reset visual trajectories whenever a new round starts.
+const clearTrails=()=>{for(const rb of robots){rb.trail=[];rb.pathT=0}if(rendererReady){removeMesh(trailMesh);trailMesh=null}trailDirty=false};
+try{hookControls();setupCamera();initWebgl();clearTrails();locate();reset();void checkSavedAccess();showProviderStatus();requestAnimationFrame(frame)}catch(e){console.error(e);const banner=document.createElement('div');banner.className='no-webgl';banner.innerHTML='<div><h2>No se pudo iniciar la visualización</h2><p>'+String(e.message).slice(0,150)+'</p></div>';$('stage').appendChild(banner)}
+})();
+</script>
+</body></html>
