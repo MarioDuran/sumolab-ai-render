@@ -11,7 +11,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const API_KEY = process.env.OPENAI_API_KEY || '';
-const ACCESS_TOKEN = 'ITESMSON2026'; // Código público embebido en la web: NO protege los créditos.
+const ACCESS_TOKEN = 'ITESMSON2026.'; // Código público embebido en la web: NO protege los créditos.
 const MOCK = process.env.MOCK_LLM === '1';
 const MAX_HOUR = boundedInt(process.env.MAX_DECISIONS_PER_HOUR, 250, 1, 10000);
 const MAX_DAY = boundedInt(process.env.MAX_DECISIONS_PER_DAY, 800, 1, 50000);

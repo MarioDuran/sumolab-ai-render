@@ -46,7 +46,7 @@ main{max-width:1800px;margin:auto;padding:23px 28px 30px}.intro{display:flex;jus
 @media(max-width:1040px){.arena-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.arena-layout .scene-card{grid-column:1/-1;grid-row:1;height:min(63vw,660px)}.brain-panel{min-height:320px}.sidebar{grid-template-columns:1fr 1fr}}
 @media(max-width:660px){.arena-layout{grid-template-columns:1fr 1fr;gap:9px}.arena-layout .scene-card{height:490px}.brain-panel{padding:11px 9px;gap:10px;min-height:340px}.brain-decision{font-size:15px}.brain-reason{font-size:11px;min-height:90px}.brain-history{max-height:142px}.sidebar{grid-template-columns:1fr}}
 
-/* V4 — arena negra, presentación cinemática y mensajes anime dentro de la batalla */
+/* V5 — arena negra, presentación cinemática y mensajes de ciencia ficción sobre la batalla */
 :root{--bg:#050505;--panel:#111112;--panel2:#18181a;--border:#343437;--text:#f7f7f7;--muted:#929298;--a:#6ad2ee;--b:#ffac66;--green:#b2f0a8;--red:#ff8888}
 html,body{background:#050505!important;color:#f7f7f7}
 body{background:radial-gradient(ellipse 55% 35% at 50% 0%,#202022 0%,#070708 80%)!important}
@@ -73,17 +73,24 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
 .viewport-bottom{bottom:15px;left:18px;right:18px;z-index:4}
 .scene-tip{color:#a1a1a4;background:#101012ba;border:1px solid #29292d}
 .camera-btns button{background:#171719d9;border:1px solid #3c3c41;color:#e5e5e7}.camera-btns button.active{background:#efefef;border-color:#fff;color:#111}
-.toast-stack{position:absolute;z-index:7;bottom:82px;left:50%;transform:translateX(-50%);width:min(575px,calc(100% - 35px));display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:stretch}
-.battle-toast{pointer-events:none;background:#fff;color:#101012;border:2px solid #000;border-radius:12px;padding:11px 15px 12px;box-shadow:5px 6px 0 #000,0 5px 28px #0008;animation:toastRise .22s cubic-bezier(.2,.9,.2,1);max-width:100%;position:relative}
-.battle-toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#64c9e8;border-radius:10px 0 0 10px}
-.battle-toast.robot-b::before{background:#efa35b}
-.battle-toast .toast-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px 9px;margin:0 0 5px;font-size:10px;font-weight:790;letter-spacing:.025em;color:#4e4e53}
-.battle-toast .toast-bot{font-weight:950;background:#101012;color:#fff;border-radius:5px;padding:3px 8px;letter-spacing:.08em}
-.battle-toast .toast-reason{font-size:11px;color:#48484c;line-height:1.35;display:inline}
-.battle-toast .toast-origin{font-size:9px;color:#77777c;font-weight:850;border:1px solid #d4d4d6;border-radius:4px;padding:2px 4px}.battle-toast .toast-quote{font-size:clamp(13px,1.55vw,19px);line-height:1.35;font-weight:900;letter-spacing:-.02em;color:#101012;margin:0}
-.battle-toast.fading{animation:toastOut .23s ease forwards}
-@keyframes toastRise{from{transform:translateY(24px) scale(.98);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.98)}}
+/* V5: paneles de diálogo superpuestos con lados independientes, sin tarjetas */
+.toast-stack{position:absolute;z-index:7;inset:115px 0 70px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,19vw,300px);padding:0 clamp(12px,2.3vw,34px);pointer-events:none;overflow:hidden}
+.toast-lane{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:17px;padding:0 0 32px;overflow:hidden;pointer-events:none}
+.toast-lane.robot-a{text-align:left;align-items:flex-start}
+.toast-lane.robot-b{text-align:right;align-items:flex-end}
+.battle-toast{position:relative;flex:0 0 auto;max-width:100%;width:100%;border:0;background:transparent;box-shadow:none;border-radius:0;padding:0;color:#fff;pointer-events:none;animation:toastRise .24s cubic-bezier(.22,.9,.2,1)}
+.battle-toast .toast-meta{display:flex;align-items:center;flex-wrap:wrap;gap:3px 9px;margin-bottom:4px;font-size:clamp(10px,.85vw,12px);line-height:1.3;font-weight:900;letter-spacing:.035em;color:#fff}
+.toast-lane.robot-b .toast-meta{justify-content:flex-end}
+.battle-toast .toast-bot{font-weight:1000;letter-spacing:.1em;font-size:clamp(11px,1vw,14px)}
+.battle-toast .toast-origin{font-size:9px;font-weight:750;letter-spacing:.025em;color:#f4f4f4}
+.battle-toast .toast-reason{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:clamp(10px,.87vw,12px);font-weight:700;line-height:1.37;color:#fff;margin:1px 0 5px}
+.battle-toast .toast-quote{font-size:clamp(16px,1.7vw,25px);line-height:1.16;font-weight:1000;letter-spacing:-.035em;text-transform:uppercase;color:#fff;margin:0;overflow-wrap:anywhere}
+/* El contorno se aplica a todo el texto, sin fondo ni rectángulo */
+.battle-toast .toast-meta,.battle-toast .toast-reason,.battle-toast .toast-quote{-webkit-text-stroke:.55px #000;paint-order:stroke fill;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 9px #000,0 4px 15px #000}
+.battle-toast .toast-quote{-webkit-text-stroke:1.4px #000;text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 5px 14px #000}
+.battle-toast.fading{animation:toastOut .26s ease forwards}
+@keyframes toastRise{from{transform:translateY(19px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-12px)}}
 .event-section{margin:15px 0 0;background:#101012;border:1px solid #2b2b2d;border-radius:16px;padding:20px 24px 21px}
 .event-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:13px;border-bottom:1px solid #2c2c30;margin-bottom:15px}
 .event-head h2{font-size:13px;font-weight:900;letter-spacing:.045em;margin:0}.event-head small{font-size:10px;color:#848488}
@@ -106,7 +113,9 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
 .drawer-section .checkbox-row{display:flex;justify-content:space-between}.drawer-section .checkbox-row input{accent-color:#fff}
 .settings-hint{font-size:11px;line-height:1.65;color:#a6a6aa;margin:0 0 8px}.drawer-status{font-size:11px;color:#b3b3bb;line-height:1.6}
 [hidden]{display:none!important}
-@media(max-width:730px){main{padding:11px 9px 25px}.command-strip{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:9px}.command-left{grid-column:1;grid-row:1}.command-right{grid-column:2;grid-row:1}.command-center{grid-column:1/-1;grid-row:2;justify-content:center}.command-strip .primary{flex:1;min-width:0}.scene-card{height:clamp(530px,74vh,770px);border-radius:12px}.hud-row{top:12px;left:9px;right:9px;gap:5px}.score-card{min-width:0;padding:8px;gap:5px;flex:1}.score-card .score-val{font-size:21px}.team-name{font-size:9px}.team-desc{font-size:9px}.match-center{padding:8px 7px;min-width:88px}.time{font-size:22px}.timer-label{font-size:8px}.top-pills{top:76px;gap:5px}.top-pill{font-size:9px}.toast-stack{bottom:76px;width:calc(100% - 18px)}.battle-toast{padding:9px 10px 10px 14px}.battle-toast .toast-meta{font-size:9px}.battle-toast .toast-reason{font-size:10px}.scene-tip{display:none}.viewport-bottom{justify-content:center}.event-section{padding:15px}.event-head{align-items:start;flex-direction:column;gap:3px}}
+@media(max-width:730px){main{padding:11px 9px 25px}.command-strip{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:9px}.command-left{grid-column:1;grid-row:1}.command-right{grid-column:2;grid-row:1}.command-center{grid-column:1/-1;grid-row:2;justify-content:center}.command-strip .primary{flex:1;min-width:0}.scene-card{height:clamp(530px,74vh,770px);border-radius:12px}.hud-row{top:12px;left:9px;right:9px;gap:5px}.score-card{min-width:0;padding:8px;gap:5px;flex:1}.score-card .score-val{font-size:21px}.team-name{font-size:9px}.team-desc{font-size:9px}.match-center{padding:8px 7px;min-width:88px}.time{font-size:22px}.timer-label{font-size:8px}.top-pills{top:76px;gap:5px}.top-pill{font-size:9px} .toast-stack{inset:115px 0 70px;gap:clamp(10px,2.5vw,24px);padding:0 8px}.toast-lane{gap:11px;padding-bottom:26px}.battle-toast .toast-meta{font-size:9px;gap:2px 4px}.battle-toast .toast-origin{display:none}.battle-toast .toast-reason{font-size:9px;-webkit-line-clamp:1}.battle-toast .toast-quote{font-size:clamp(13px,3.4vw,17px);-webkit-text-stroke:.9px #000}.scene-tip{display:none}.viewport-bottom{justify-content:center}.event-section{padding:15px}.event-head{align-items:start;flex-direction:column;gap:3px}}
+@media(min-width:731px) and (max-width:1020px){.toast-stack{gap:clamp(38px,8vw,100px)}.battle-toast .toast-quote{font-size:clamp(17px,2.15vw,21px)}}
+@media(max-width:390px){.toast-stack{gap:8px;padding:0 6px}.battle-toast .toast-meta{font-size:8px}.battle-toast .toast-quote{font-size:12px}.battle-toast .toast-reason{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.battle-toast{animation:none!important}.battle-toast.fading{animation:none!important}}
 
 </style></head>
@@ -123,7 +132,7 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
    <div class="hud-row"><div class="score-card"><div class="team-bar"></div><div><div class="team-name">SUMOBOT A</div><div class="team-desc" id="nameA">GPT ONLINE</div></div><span class="score-val" id="scoreA">0</span></div><div class="match-center"><div class="time" id="clock">01:00</div><div class="timer-label" id="roundLabel">ASALTO 1 / 3</div></div><div class="score-card orange"><div class="team-bar"></div><div><div class="team-name">SUMOBOT B</div><div class="team-desc" id="nameB">GPT ONLINE</div></div><span class="score-val" id="scoreB">0</span></div></div>
    <div class="top-pills"><span class="top-pill" id="statusPill">● EN ESPERA</span><span class="top-pill" id="sensorsPill">Sensores activos</span></div>
    <div class="center-overlay" id="centerOverlay"><div class="kicker" id="overlayKicker">ESCENARIO LISTO</div><div class="big" id="overlayBig">VS</div><div class="message" id="overlayText">Los cerebros esperan el primer asalto.</div></div>
-   <div class="toast-stack" id="battleToasts" aria-live="polite" aria-label="Diálogos tácticos de ambos sumobots"></div>
+   <div class="toast-stack" id="battleToasts" aria-live="polite" aria-label="Diálogos tácticos de ambos sumobots"><div class="toast-lane robot-a" id="toastLaneA" aria-label="Mensajes del sumobot A"></div><div class="toast-lane robot-b" id="toastLaneB" aria-label="Mensajes del sumobot B"></div></div>
    <div class="viewport-bottom"><div class="scene-tip">Arrastra para orbitar · Rueda para acercar<br>Espacio: pausa · R: reinicia</div><div class="camera-btns"><button id="cam3d" class="active">◈ 3D</button><button id="camTop">⊙ Cenital</button><button id="camReset">⌖ Centrar</button></div></div>
  </div>
 </section>
@@ -137,10 +146,10 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
     <label for="stratB">Sumobot B · controlador</label><select id="stratB"><option value="gpt">GPT ONLINE · cerebro B</option><option value="equilibrado">Equilibrado</option><option value="agresivo">Agresivo</option><option value="defensivo">Defensivo</option><option value="flanqueador">Flanqueador</option><option value="aleatorio">Explorador</option></select><p class="strategy-desc" id="descB"></p>
     <label for="formation">Disposición de salida</label><select id="formation"><option value="automatico">Alterna por asalto</option><option value="frontal">Frente a frente</option><option value="diagonal">Diagonal</option><option value="espaldas">Espaldas opuestas</option></select>
   </div>
-  <div class="drawer-section"><h3>Frases anime · editables por estrategia</h3><p class="settings-hint">Personaliza lo que dice cada robot según la táctica. Se guarda automáticamente en este navegador. Las frases son diálogos de exhibición, no instrucciones enviadas al GPT.</p>
-    <label for="phraseBot">Personalidad del robot</label><select id="phraseBot"><option value="A">SUMOBOT A</option><option value="B">SUMOBOT B</option></select>
+  <div class="drawer-section"><h3>Voces de combate · Terminator vs RoboCop</h3><p class="settings-hint">Personaliza las líneas de cada unidad: A es un perseguidor implacable, B es un agente cibernético de la ley. Se guardan en este navegador; son frases escénicas, no el razonamiento interno de GPT.</p>
+    <label for="phraseBot">Unidad que habla</label><select id="phraseBot"><option value="A">SUMOBOT A · EXTERMINADOR</option><option value="B">SUMOBOT B · AGENTE CIBERNÉTICO</option></select>
     <label for="phraseTactic">Estrategia a personalizar</label><select id="phraseTactic"><option value="agresivo">Agresivo</option><option value="equilibrado">Equilibrado</option><option value="defensivo">Defensivo</option><option value="flanqueador">Flanqueador</option><option value="aleatorio">Explorador</option><option value="romper_ciclo">Romper ciclo</option></select>
-    <label for="phraseText">Línea de diálogo</label><textarea id="phraseText" maxlength="220" placeholder="¡No subestimes mi poder!" spellcheck="true"></textarea>
+    <label for="phraseText">Línea de diálogo</label><textarea id="phraseText" maxlength="220" placeholder="OBJETIVO LOCALIZADO. INICIANDO INTERVENCIÓN." spellcheck="true"></textarea>
     <p class="settings-hint" id="phraseSaved">Edición guardada en este dispositivo.</p><div class="drawer-buttons"><button id="previewPhrase">▶ Previsualizar en la arena</button><button id="restorePhrase">↺ Restablecer esta frase</button></div>
   </div>
   <div class="drawer-section"><h3>Parámetros físicos</h3>
@@ -234,31 +243,45 @@ function log(msg,tone='neutral'){const row=document.createElement('div');row.cla
 // Diálogos escénicos: NO son pensamiento oculto del LLM; las explicaciones del modelo van separadas.
 const DEFAULT_DIALOGUE={
  A:{
-  agresivo:'¡Mi espíritu arde! ¡Recibe todo el poder de mi embestida!',
-  equilibrado:'La victoria no depende de la fuerza... ¡sino de dominar cada movimiento!',
-  defensivo:'¡Ni un paso atrás! Esta arena es mi territorio.',
-  flanqueador:'¿Dónde estás? ¡No te ocultes! ¡Voy a encontrarte!',
-  aleatorio:'¡Mi próxima jugada será una sorpresa! ¡Intenta seguirme!',
-  romper_ciclo:'¡Romperé este destino repetido! ¡Cambio de rumbo, ahora!'
+  agresivo:'OBJETIVO ADQUIRIDO. INICIANDO SECUENCIA DE ELIMINACIÓN.',
+  equilibrado:'ANÁLISIS COMPLETO. AJUSTANDO TRAYECTORIA. VICTORIA PROBABLE.',
+  defensivo:'AMENAZA PERIMETRAL. RETROCESO TÁCTICO AUTORIZADO.',
+  flanqueador:'NO HAY ESCAPE. TU POSICIÓN SERÁ LOCALIZADA.',
+  aleatorio:'PATRÓN IMPREDECIBLE ACTIVADO. NO PUEDES ANTICIPARME.',
+  romper_ciclo:'BUCLE DETECTADO. REESCRIBIENDO RUTA DE ATAQUE.'
  },
  B:{
-  agresivo:'¡No pienso rendirme! ¡Este golpe decidirá nuestro duelo!',
-  equilibrado:'¡Mantén la calma... observa... y ahora, contraataca!',
-  defensivo:'¡Tu ataque no podrá quebrar mi guardia! ¡Resistiré!',
-  flanqueador:'¡Te rodearé como un relámpago! ¡No escaparás!',
-  aleatorio:'¡Je! ¿Creías haber adivinado mis movimientos?',
-  romper_ciclo:'¡Se acabó el círculo eterno! ¡Despierta, nuevo plan!'
+  agresivo:'¡ALTO! RESISTENCIA DETECTADA. PROCEDO A NEUTRALIZAR.',
+  equilibrado:'EVALUANDO AMENAZA. PROTOCOLO DE INTERVENCIÓN EN CURSO.',
+  defensivo:'ZONA RESTRINGIDA. PROTECCIÓN PERIMETRAL ACTIVADA.',
+  flanqueador:'OBJETIVO EVASIVO. INICIANDO INTERCEPTACIÓN LATERAL.',
+  aleatorio:'TU CONDUCTA ES ERRÁTICA. AJUSTANDO PROTOCOLO DE PATRULLA.',
+  romper_ciclo:'PATRÓN CIRCULAR DETECTADO. APLICANDO MANIOBRA CORRECTIVA.'
  }
 };
-const DIALOGUE_KEY='sumolab_v4_anime_dialogues';
-function loadDialogue(){try{const data=JSON.parse(localStorage.getItem(DIALOGUE_KEY)||'{}');return Object.fromEntries(['A','B'].map(k=>[k,Object.fromEntries(Object.keys(DEFAULT_DIALOGUE[k]).map(t=>[t,typeof data?.[k]?.[t]==='string'?data[k][t].slice(0,220):DEFAULT_DIALOGUE[k][t]]))]));}catch{return JSON.parse(JSON.stringify(DEFAULT_DIALOGUE));}}
+// Las personalizaciones anteriores se conservan; las frases anime de fábrica se sustituyen.
+const OLD_V4_DEFAULT_DIALOGUE={
+ A:{agresivo:'¡Mi espíritu arde! ¡Recibe todo el poder de mi embestida!',equilibrado:'La victoria no depende de la fuerza... ¡sino de dominar cada movimiento!',defensivo:'¡Ni un paso atrás! Esta arena es mi territorio.',flanqueador:'¿Dónde estás? ¡No te ocultes! ¡Voy a encontrarte!',aleatorio:'¡Mi próxima jugada será una sorpresa! ¡Intenta seguirme!',romper_ciclo:'¡Romperé este destino repetido! ¡Cambio de rumbo, ahora!'},
+ B:{agresivo:'¡No pienso rendirme! ¡Este golpe decidirá nuestro duelo!',equilibrado:'¡Mantén la calma... observa... y ahora, contraataca!',defensivo:'¡Tu ataque no podrá quebrar mi guardia! ¡Resistiré!',flanqueador:'¡Te rodearé como un relámpago! ¡No escaparás!',aleatorio:'¡Je! ¿Creías haber adivinado mis movimientos?',romper_ciclo:'¡Se acabó el círculo eterno! ¡Despierta, nuevo plan!'}
+};
+const DIALOGUE_KEY='sumolab_v5_cyborg_dialogues';
+function loadDialogue(){
+ let v5={},v4={};
+ try{v5=JSON.parse(localStorage.getItem(DIALOGUE_KEY)||'{}')||{};}catch{}
+ try{v4=JSON.parse(localStorage.getItem('sumolab_v4_anime_dialogues')||'{}')||{};}catch{}
+ return Object.fromEntries(['A','B'].map(bot=>[bot,Object.fromEntries(Object.keys(DEFAULT_DIALOGUE[bot]).map(tactic=>{
+   const own=v5?.[bot]?.[tactic],old=v4?.[bot]?.[tactic];
+   const migrated=typeof old==='string'&&old!==OLD_V4_DEFAULT_DIALOGUE[bot][tactic]?old:DEFAULT_DIALOGUE[bot][tactic];
+   return [tactic,(typeof own==='string'?own:migrated).slice(0,220)];
+ }))]));
+}
 const dialogue=loadDialogue();
 function saveDialogue(){try{localStorage.setItem(DIALOGUE_KEY,JSON.stringify(dialogue));$('phraseSaved').textContent='Cambios guardados en este navegador.';}catch{$('phraseSaved').textContent='No se puede guardar en este navegador.';}}
 function dialogueQuote(bot,tactic){return (dialogue[bot]?.[tactic]||DEFAULT_DIALOGUE[bot]?.[tactic]||'¡Al ataque!').trim();}
 const liveToastTimers=new Map();
-function clearToasts(){for(const t of liveToastTimers.values())clearTimeout(t);liveToastTimers.clear();$('battleToasts').replaceChildren();}
+function clearToasts(){for(const t of liveToastTimers.values())clearTimeout(t);liveToastTimers.clear();$('toastLaneA').replaceChildren();$('toastLaneB').replaceChildren();}
 function emitBattleToast(rb,tactic,reason,origin='fsm'){
- const arena=$('battleToasts'),bot=rb.i?'B':'A';
+ const arena=$(rb.i?'toastLaneB':'toastLaneA'),bot=rb.i?'B':'A';
  const speech=dialogueQuote(bot,tactic);if(!speech)return;
  const card=document.createElement('article');card.className='battle-toast'+(rb.i?' robot-b':'');
  const meta=document.createElement('div');meta.className='toast-meta';
@@ -268,8 +291,8 @@ function emitBattleToast(rb,tactic,reason,origin='fsm'){
  const tacticLabel=document.createElement('strong');tacticLabel.textContent=labels[tactic]||tactic;
  const reasonEl=document.createElement('span');reasonEl.className='toast-reason';reasonEl.textContent=' · '+String(reason||'Decisión táctica actual.').slice(0,115);
  const quote=document.createElement('p');quote.className='toast-quote';quote.textContent='“'+speech+'”';
- meta.append(tag,timeLabel,tacticLabel,originTag,reasonEl);card.append(meta,quote);arena.append(card);
- while(arena.children.length>4){const prev=arena.firstElementChild;clearTimeout(liveToastTimers.get(prev));liveToastTimers.delete(prev);prev.remove();}
+ meta.append(tag,timeLabel,tacticLabel,originTag);card.append(meta,reasonEl,quote);arena.append(card);
+ while(arena.children.length>3){const prev=arena.firstElementChild;clearTimeout(liveToastTimers.get(prev));liveToastTimers.delete(prev);prev.remove();}
  const timer=setTimeout(()=>{card.classList.add('fading');const finish=setTimeout(()=>{card.remove();liveToastTimers.delete(card);},240);liveToastTimers.set(card,finish)},5700);
  liveToastTimers.set(card,timer);
 }
@@ -346,7 +369,7 @@ locate();for(const rb of robots){rb.llmNextAt=0;rb.llmPending=false;rb.pendingBa
 function togglePause(){if(phase==='running'||phase==='countdown'){prevPhase=phase;phase='paused';log('Simulación pausada.')}else if(phase==='paused'){phase=prevPhase;log('Simulación reanudada.')}ui(true)}
 
 // Clave compartida hardcodeada pedida para la demostración. Es visible en el frontend, no un secreto.
-const accessToken='ITESMSON2026';
+const accessToken='ITESMSON2026.';
 // CEREBROS GPT: solo decisiones tacticas. El controlador local conserva prioridad.
 let llmNonce=0;
 async function showProviderStatus(){

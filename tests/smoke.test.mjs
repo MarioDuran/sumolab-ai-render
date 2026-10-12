@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 
 const PORT=31847;
-const PASS='ITESMSON2026';
+const PASS='ITESMSON2026.';
 const BASE=`http://127.0.0.1:${PORT}`;
 let server;
 
@@ -25,8 +25,12 @@ test('servidor Render: accesos, disponibilidad y modo demo', async (t)=>{
   const text=await page.text();
   assert.match(text,/SUMO\/\/LAB/);
   assert.match(text,/battleToasts/);
+  assert.match(text,/toastLaneA/);
+  assert.match(text,/toastLaneB/);
+  assert.match(text,/BUCLE DETECTADO/);
+  assert.match(text,/PROTOCOLO DE INTERVENCIÓN/);
   assert.match(text,/phraseText/);
-  assert.match(text,/ITESMSON2026/);
+  assert.match(text,/ITESMSON2026\./);
   assert.doesNotMatch(text,/id=\"brainPanelA\"/);
   assert.ok(text.includes(PASS),'Demo password intentionally hardcoded in browser');
 
@@ -36,6 +40,8 @@ test('servidor Render: accesos, disponibilidad y modo demo', async (t)=>{
 
   const invalid=await fetch(BASE+'/api/auth',{method:'POST',headers:{'x-sumolab-access':'badcode'}});
   assert.equal(invalid.status,401);
+  const oldCode=await fetch(BASE+'/api/auth',{method:'POST',headers:{'x-sumolab-access':'ITESMSON2026'}});
+  assert.equal(oldCode.status,401,'El password sin punto no debe funcionar');
   const auth=await fetch(BASE+'/api/auth',{method:'POST',headers:{'x-sumolab-access':PASS}});
   assert.equal(auth.status,200);
 
