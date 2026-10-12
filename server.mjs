@@ -9,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
-const MODEL = process.env.OPENAI_MODEL || 'gpt-6-luna';
+const MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const API_KEY = process.env.OPENAI_API_KEY || '';
 const ACCESS_TOKEN = process.env.SUMOLAB_ACCESS_TOKEN || '';
 const MOCK = process.env.MOCK_LLM === '1';
@@ -17,7 +17,7 @@ const MAX_HOUR = boundedInt(process.env.MAX_DECISIONS_PER_HOUR, 250, 1, 10000);
 const MAX_DAY = boundedInt(process.env.MAX_DECISIONS_PER_DAY, 800, 1, 50000);
 const MAX_MINUTE = 60;
 const MAX_ACTIVE = 2;
-const MODES = ['agresivo','equilibrado','defensivo','flanqueador','aleatorio'];
+const MODES = ['agresivo','equilibrado','defensivo','flanqueador','aleatorio','romper_ciclo'];
 
 if (!ACCESS_TOKEN || ACCESS_TOKEN.length < 12) {
   console.error('SUMOLAB_ACCESS_TOKEN es obligatorio y debe tener al menos 12 caracteres. Configuralo en Render > Environment.');
@@ -56,7 +56,16 @@ function normalize(data) {
       segundos_transcurridos:clamp(o.segundos_transcurridos,0,60,0),
       estrategia_actual:MODES.includes(o.estrategia_actual)?o.estrategia_actual:'equilibrado',
       asaltos_ganados:[0,1].map(i => Math.floor(clamp(o.asaltos_ganados?.[i],0,2,0))),
-      historial:Array.isArray(o.historial)?o.historial.slice(-3).filter(x=>typeof x==='string').map(x=>x.slice(0,120)):[]
+      historial:Array.isArray(o.historial)?o.historial.slice(-5).filter(x=>typeof x==='string').map(x=>x.slice(0,120)):[],
+      diagnostico:{
+        en_bucle:o.diagnostico?.en_bucle===true,
+        tipo:typeof o.diagnostico?.tipo==='string'?o.diagnostico.tipo.slice(0,48):'ninguno',
+        segundos_sin_progreso:clamp(o.diagnostico?.segundos_sin_progreso,0,60,0),
+        recorrido_6s_cm:clamp(o.diagnostico?.recorrido_6s_cm,0,1000,0),
+        avance_neto_6s_cm:clamp(o.diagnostico?.avance_neto_6s_cm,0,1000,0),
+        giro_6s_grados:clamp(o.diagnostico?.giro_6s_grados,0,6000,0),
+        alertas_previas:Math.floor(clamp(o.diagnostico?.alertas_previas,0,99,0))
+      }
     }
   };
 }
@@ -90,9 +99,9 @@ function canSpend() {
   return null;
 }
 function mockDecision({obs,bot}) {
-  const tactica = obs.borde.some(Boolean)?'defensivo':obs.ir[1]?'agresivo':
+  const tactica = obs.borde.some(Boolean)?'defensivo':obs.diagnostico?.en_bucle?'romper_ciclo':obs.ir[1]?'agresivo':
     (obs.ir[0]||obs.ir[2])?'flanqueador':bot==='A'?'agresivo':'aleatorio';
-  return {tactica,agresividad:.75,duracion_s:4,motivo:'Decisión simulada: no se ha consultado a GPT.',fuente:'mock'};
+  return {tactica,agresividad:.75,duracion_s:tactica==='romper_ciclo'?2.5:4,motivo:tactica==='romper_ciclo'?'Prueba: romper giro repetitivo con maniobra de escape.':'Decisión simulada: no se ha consultado a GPT.',fuente:'mock'};
 }
 async function openaiDecision(data) {
   const style = data.bot === 'A'
@@ -104,18 +113,20 @@ async function openaiDecision(data) {
     'Recibes únicamente datos de los cinco sensores del robot, cronometro, marcador y memoria propia.',
     'Los sensores IR booleanos son [izquierda,centro,derecha] y borde [izquierda,derecha].',
     'No tienes una camara, ni conoces distancias exactas o coordenadas ocultas.',
+    'El diagnostico de estancamiento es una señal EXTERNA del simulador basada en trayectorias; no es una medida de los sensores reales del ESP32.',
+    'Si diagnostico.en_bucle es true, tienes que cambiar la maniobra y priorizar romper_ciclo salvo que un sensor de borde indique peligro.',
+    'Evita elegir repetidamente el mismo modo si el historial revela falta de progreso.',
     'No controlas motores ni PWM. Eliges una tactica durante pocos segundos.',
     'El controlador determinista del robot anulá decisiones peligrosas cerca del borde.',
-    'Elige solo entre agresivo, equilibrado, defensivo, flanqueador, aleatorio.',
-    'Devuelve una justificacion tactica concisa de como maximo 14 palabras.'
+    'Elige solo entre agresivo, equilibrado, defensivo, flanqueador, aleatorio, romper_ciclo. romper_ciclo ejecuta retroceso + giro asimetrico + avance en otra direccion.',
+    'En motivo explica brevemente que informacion utilizaste para elegir la tactica, maximo 18 palabras. No simules razonamiento oculto.'
   ].join(' ');
   const payload={
     model:MODEL,
     store:false,
     instructions,
     input:JSON.stringify(data.obs),
-    reasoning:{effort:'none'},
-    max_output_tokens:220,
+    max_output_tokens:260,
     text:{format:{type:'json_schema',name:'estrategia_sumolab',strict:true,schema:{
       type:'object', additionalProperties:false,
       properties:{
@@ -150,12 +161,17 @@ async function openaiDecision(data) {
     totalTokens.input+=out.usage.input_tokens||0;
     totalTokens.output+=out.usage.output_tokens||0;
   }
+  // Red de seguridad: si GPT repite exactamente la acción en un atasco, la cambiamos
+  // explícitamente como intervención del controlador, sin atribuirla al modelo.
+  const forceUnstick=data.obs.diagnostico.en_bucle && d.tactica===data.obs.estrategia_actual && !data.obs.borde.some(Boolean);
   return {
-    tactica:d.tactica,
+    tactica:forceUnstick?'romper_ciclo':d.tactica,
     agresividad:clamp(d.agresividad,0,1,.7),
-    duracion_s:clamp(d.duracion_s,2,6,4),
-    motivo:String(d.motivo||'').slice(0,120),
-    fuente:MODEL,
+    duracion_s:clamp(d.duracion_s,1.5,6,4),
+    motivo:forceUnstick?'Control anti-bucle: GPT repitió la táctica anterior; aplico maniobra alternativa.':String(d.motivo||'').slice(0,160),
+    fuente:forceUnstick?'control_anti_bucle':MODEL,
+    modelo:MODEL,
+    sugerencia_gpt:forceUnstick?d.tactica:null,
     uso:out.usage ? {entrada:out.usage.input_tokens||0,salida:out.usage.output_tokens||0}:null
   };
 }
@@ -195,10 +211,10 @@ async function handler(req,res) {
     if (!validAccess(req)) return json(res,401,{error:'Clave de acceso al simulador incorrecta.'});
     if (pathname==='/api/auth') return json(res,200,{autorizado:true});
     if (!MOCK&&!API_KEY) return json(res,503,{error:'No se configuró OPENAI_API_KEY en Render.'});
-    const limit=canSpend();
-    if(limit) return json(res,429,{error:limit});
     const parsed=normalize(await bodyAsJson(req));
     if(!parsed) return json(res,400,{error:'Datos del robot no válidos.'});
+    const limit=canSpend();
+    if(limit) return json(res,429,{error:limit});
     running++;
     try {
       return json(res,200,await (MOCK?mockDecision(parsed):openaiDecision(parsed)));

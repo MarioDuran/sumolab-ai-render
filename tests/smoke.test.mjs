@@ -42,7 +42,11 @@ test('servidor Render: accesos, disponibilidad y modo demo', async (t)=>{
   const result=await first.json();
   assert.equal(result.tactica,'agresivo');
   assert.equal(result.fuente,'mock');
-  assert.equal((await decisionReq()).status,200);
+  // Una alerta explícita de estancamiento debe forzar en demo una maniobra distinta.
+  obs.diagnostico={en_bucle:true,tipo:'trayectoria_circular',segundos_sin_progreso:6,
+    recorrido_6s_cm:48,avance_neto_6s_cm:4,giro_6s_grados:560,alertas_previas:1};
+  const second=await decisionReq();assert.equal(second.status,200);
+  assert.equal((await second.json()).tactica,'romper_ciclo');
   const capped=await decisionReq();assert.equal(capped.status,429);
   assert.equal((await fetch(BASE+'/api/decide',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({bot:'A',obs})})).status,401);
   assert.equal((await fetch(BASE+'/public/index.html')).status,404);
