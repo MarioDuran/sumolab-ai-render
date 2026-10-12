@@ -4,14 +4,14 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 
 const PORT=31847;
-const PASS='sumolab-test-secret-1234567';
+const PASS='ITESMSON2026';
 const BASE=`http://127.0.0.1:${PORT}`;
 let server;
 
 test('servidor Render: accesos, disponibilidad y modo demo', async (t)=>{
   server=spawn(process.execPath,['server.mjs'],{
     cwd:new URL('../',import.meta.url),
-    env:{...process.env,PORT:String(PORT),HOST:'127.0.0.1',SUMOLAB_ACCESS_TOKEN:PASS,MOCK_LLM:'1',OPENAI_API_KEY:'',MAX_DECISIONS_PER_HOUR:'2',MAX_DECISIONS_PER_DAY:'2'},
+    env:{...process.env,PORT:String(PORT),HOST:'127.0.0.1',MOCK_LLM:'1',OPENAI_API_KEY:'',MAX_DECISIONS_PER_HOUR:'2',MAX_DECISIONS_PER_DAY:'2'},
     stdio:['ignore','pipe','pipe']
   });
   t.after(async()=>{if(server&&!server.killed){server.kill('SIGTERM');await once(server,'exit');}});
@@ -24,12 +24,15 @@ test('servidor Render: accesos, disponibilidad y modo demo', async (t)=>{
   assert.equal(page.status,200);
   const text=await page.text();
   assert.match(text,/SUMO\/\/LAB/);
-  assert.match(text,/SUMOLAB_ACCESS_TOKEN/);
-  assert.ok(!text.includes(PASS),'Secret should not leak to HTML');
+  assert.match(text,/battleToasts/);
+  assert.match(text,/phraseText/);
+  assert.match(text,/ITESMSON2026/);
+  assert.doesNotMatch(text,/id=\"brainPanelA\"/);
+  assert.ok(text.includes(PASS),'Demo password intentionally hardcoded in browser');
 
   const status=await (await fetch(BASE+'/api/status')).json();
   assert.equal(status.modo,'demostracion');
-  assert.equal(status.accesoProtegido,true);
+  assert.equal(status.accesoProtegido,false);
 
   const invalid=await fetch(BASE+'/api/auth',{method:'POST',headers:{'x-sumolab-access':'badcode'}});
   assert.equal(invalid.status,401);

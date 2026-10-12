@@ -14,8 +14,6 @@ services:
         value: gpt-4.1-mini
       - key: OPENAI_API_KEY
         sync: false
-      - key: SUMOLAB_ACCESS_TOKEN
-        sync: false
       - key: MAX_DECISIONS_PER_HOUR
         value: '250'
       - key: MAX_DECISIONS_PER_DAY

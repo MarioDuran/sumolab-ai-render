@@ -5,13 +5,13 @@ import {timingSafeEqual} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 
 // SUMO//LAB AI — Backend privado para Render. Sin dependencias externas.
-// Secrets only from Render environment variables; never returned to the client.
+// OpenAI key is server-side only. The demo access code below is intentionally public and is NOT security.
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const API_KEY = process.env.OPENAI_API_KEY || '';
-const ACCESS_TOKEN = process.env.SUMOLAB_ACCESS_TOKEN || '';
+const ACCESS_TOKEN = 'ITESMSON2026'; // Código público embebido en la web: NO protege los créditos.
 const MOCK = process.env.MOCK_LLM === '1';
 const MAX_HOUR = boundedInt(process.env.MAX_DECISIONS_PER_HOUR, 250, 1, 10000);
 const MAX_DAY = boundedInt(process.env.MAX_DECISIONS_PER_DAY, 800, 1, 50000);
@@ -19,10 +19,6 @@ const MAX_MINUTE = 60;
 const MAX_ACTIVE = 2;
 const MODES = ['agresivo','equilibrado','defensivo','flanqueador','aleatorio','romper_ciclo'];
 
-if (!ACCESS_TOKEN || ACCESS_TOKEN.length < 12) {
-  console.error('SUMOLAB_ACCESS_TOKEN es obligatorio y debe tener al menos 12 caracteres. Configuralo en Render > Environment.');
-  process.exit(1);
-}
 if (!Number.isInteger(PORT) || PORT <= 0 || PORT > 65535) {
   console.error('PORT invalido'); process.exit(1);
 }
@@ -202,7 +198,7 @@ async function handler(req,res) {
       llmDisponible:MOCK||Boolean(API_KEY),
       modo:MOCK?'demostracion':API_KEY?'OpenAI API':'sin_clave',
       modelo:MODEL,
-      accesoProtegido:true,
+      accesoProtegido:false,
       maxDecisionesHora:MAX_HOUR,
       maxDecisionesDia:MAX_DAY
     });
@@ -235,6 +231,6 @@ const server=http.createServer((req,res)=>{
 server.listen(PORT,HOST,()=>{
   console.log(`SUMO//LAB AI escuchando en ${HOST}:${PORT}`);
   console.log(MOCK?'MODO DEMO sin consumo de API':API_KEY?`OpenAI: ${MODEL}`:'Falta OPENAI_API_KEY para GPT real');
-  console.log('Acceso privado activo. /health disponible para Render.');
+  console.log('Modo demo público con cuota compartida activa. /health disponible para Render.');
 });
 process.on('SIGTERM',()=>server.close(()=>process.exit(0)));

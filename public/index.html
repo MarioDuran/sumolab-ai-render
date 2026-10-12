@@ -45,74 +45,117 @@ main{max-width:1800px;margin:auto;padding:23px 28px 30px}.intro{display:flex;jus
 .brain-panel .brain-status[role=status]{min-height:32px}
 @media(max-width:1040px){.arena-layout{grid-template-columns:repeat(2,minmax(0,1fr))}.arena-layout .scene-card{grid-column:1/-1;grid-row:1;height:min(63vw,660px)}.brain-panel{min-height:320px}.sidebar{grid-template-columns:1fr 1fr}}
 @media(max-width:660px){.arena-layout{grid-template-columns:1fr 1fr;gap:9px}.arena-layout .scene-card{height:490px}.brain-panel{padding:11px 9px;gap:10px;min-height:340px}.brain-decision{font-size:15px}.brain-reason{font-size:11px;min-height:90px}.brain-history{max-height:142px}.sidebar{grid-template-columns:1fr}}
-</style>
-</head>
+
+/* V4 — arena negra, presentación cinemática y mensajes anime dentro de la batalla */
+:root{--bg:#050505;--panel:#111112;--panel2:#18181a;--border:#343437;--text:#f7f7f7;--muted:#929298;--a:#6ad2ee;--b:#ffac66;--green:#b2f0a8;--red:#ff8888}
+html,body{background:#050505!important;color:#f7f7f7}
+body{background:radial-gradient(ellipse 55% 35% at 50% 0%,#202022 0%,#070708 80%)!important}
+main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
+.command-strip{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin:2px auto 15px;gap:14px;min-height:58px}
+.command-eyebrow{font-size:11px;letter-spacing:.19em;font-weight:900;color:#8e8e92}
+.command-left{display:flex;flex-direction:column;gap:4px}.command-left small{font-size:10px;color:#66666b;letter-spacing:.05em}
+.command-center{display:flex;align-items:center;gap:8px}.command-right{display:flex;justify-content:flex-end;gap:9px;align-items:center}
+.command-strip .primary{width:auto;min-width:204px;background:#f4f4f4;color:#0b0b0d;box-shadow:none;border:1px solid #fafafa;border-radius:11px;font-size:13px;padding:14px 22px}
+.command-strip .primary:hover{background:#dcdcdc}.command-strip .primary:disabled{opacity:.57!important}
+.command-strip .secondary,.command-strip .ghostbtn,.settings-close{background:#161619;border:1px solid #343438;color:#f3f3f3;border-radius:11px;padding:12px 14px;min-height:45px;box-shadow:none}
+.icon-settings{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:780}
+.icon-settings svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+.scene-card{height:clamp(570px,72vh,800px);background:radial-gradient(ellipse at 50% 35%,#202023 0%,#0b0b0d 57%,#030304 100%)!important;border:1px solid #313134;border-radius:20px;box-shadow:0 18px 72px #0009}
+.scene-vignette{box-shadow:inset 0 0 115px #000b}
+.layout{display:block}.stage-col{width:100%}.arena-layout{display:block}
+.hud-row{left:clamp(12px,2vw,28px);right:clamp(12px,2vw,28px);top:18px;z-index:4;gap:12px}
+.score-card{background:#0c0c0edb;border:1px solid #38383b;min-width:162px;max-width:208px;box-shadow:0 4px 16px #0005}
+.score-card.orange{flex-direction:row-reverse}.score-card.orange .score-val{margin-left:0;margin-right:auto}
+.team-name{color:#f4f4f4}.team-desc{color:#a5a5a7}.team-bar{box-shadow:none!important}
+.match-center{background:#0b0b0bd9;border:1px solid #343439}.time{font-size:30px;color:#fff}
+.top-pills{top:94px;z-index:2}.top-pill{background:#131315dc;border:1px solid #313135;color:#a8a8ac}
+.center-overlay{top:45%;z-index:3}.center-overlay .kicker{color:#d5d5d6}.center-overlay .big{color:#fff}
+.viewport-bottom{bottom:15px;left:18px;right:18px;z-index:4}
+.scene-tip{color:#a1a1a4;background:#101012ba;border:1px solid #29292d}
+.camera-btns button{background:#171719d9;border:1px solid #3c3c41;color:#e5e5e7}.camera-btns button.active{background:#efefef;border-color:#fff;color:#111}
+.toast-stack{position:absolute;z-index:7;bottom:82px;left:50%;transform:translateX(-50%);width:min(575px,calc(100% - 35px));display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:stretch}
+.battle-toast{pointer-events:none;background:#fff;color:#101012;border:2px solid #000;border-radius:12px;padding:11px 15px 12px;box-shadow:5px 6px 0 #000,0 5px 28px #0008;animation:toastRise .22s cubic-bezier(.2,.9,.2,1);max-width:100%;position:relative}
+.battle-toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#64c9e8;border-radius:10px 0 0 10px}
+.battle-toast.robot-b::before{background:#efa35b}
+.battle-toast .toast-meta{display:flex;align-items:center;flex-wrap:wrap;gap:7px 9px;margin:0 0 5px;font-size:10px;font-weight:790;letter-spacing:.025em;color:#4e4e53}
+.battle-toast .toast-bot{font-weight:950;background:#101012;color:#fff;border-radius:5px;padding:3px 8px;letter-spacing:.08em}
+.battle-toast .toast-reason{font-size:11px;color:#48484c;line-height:1.35;display:inline}
+.battle-toast .toast-origin{font-size:9px;color:#77777c;font-weight:850;border:1px solid #d4d4d6;border-radius:4px;padding:2px 4px}.battle-toast .toast-quote{font-size:clamp(13px,1.55vw,19px);line-height:1.35;font-weight:900;letter-spacing:-.02em;color:#101012;margin:0}
+.battle-toast.fading{animation:toastOut .23s ease forwards}
+@keyframes toastRise{from{transform:translateY(24px) scale(.98);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-10px) scale(.98)}}
+.event-section{margin:15px 0 0;background:#101012;border:1px solid #2b2b2d;border-radius:16px;padding:20px 24px 21px}
+.event-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:13px;border-bottom:1px solid #2c2c30;margin-bottom:15px}
+.event-head h2{font-size:13px;font-weight:900;letter-spacing:.045em;margin:0}.event-head small{font-size:10px;color:#848488}
+.event-actions{display:flex;align-items:center;gap:12px}.log-export{background:#19191c;border:1px solid #48484d;color:#eee;border-radius:7px;padding:8px 11px;font-size:11px;font-weight:700}.log-export:hover{background:#29292c}.event-log{max-height:230px;overflow:auto;padding-right:6px}.log-entry{font-size:12px;border-bottom:1px solid #242427;margin:0;padding:10px 0;gap:13px;color:#c3c3c6}.log-entry time{color:#7c7c81;flex-basis:45px}.log-entry .neutral{color:#dedee0}
+.settings-backdrop{position:fixed;inset:0;background:#000a;z-index:40;opacity:1}
+.settings-backdrop[hidden],.settings-drawer[hidden]{display:none!important}
+.settings-drawer{position:fixed;z-index:41;top:0;right:0;width:min(480px,100vw);height:100dvh;overflow:auto;background:#101012;color:#f8f8f8;border-left:1px solid #353539;box-shadow:-20px 0 80px #000c;padding:24px 22px 34px}
+.settings-drawer .drawer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:20px;padding-bottom:17px;border-bottom:1px solid #353539}
+.drawer-kicker{font-size:10px;letter-spacing:.18em;color:#939397;font-weight:900;margin-bottom:5px}.drawer-top h2{font-size:25px;letter-spacing:-.05em;margin:0}
+.drawer-section{border:1px solid #323237;background:#171719;border-radius:13px;padding:17px;margin-bottom:13px}
+.drawer-section h3{font-size:13px;font-weight:890;letter-spacing:.035em;margin:0 0 14px}
+.drawer-section label{font-size:11px;color:#b7b7ba;display:block;margin:13px 0 7px}.drawer-section select,.drawer-section textarea{width:100%;background:#0b0b0d;color:#f4f4f6;border:1px solid #48484d;border-radius:9px;padding:11px;font:inherit;outline:none}
+.drawer-section textarea{resize:vertical;min-height:85px;line-height:1.5;font-size:13px}
+.drawer-section textarea:focus,.drawer-section select:focus{border-color:#f1f1f3}
+.drawer-section .strategy-desc{min-height:auto}.drawer-section .rangerow{margin:10px 0}.drawer-section input[type=range]{accent-color:#efefef}
+.drawer-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.drawer-buttons button{background:#232327;color:#eee;border:1px solid #44444a;border-radius:8px;padding:10px 12px;font-size:11px;font-weight:750}
+.drawer-section .speed-buttons button{background:#1e1e21;border-color:#48484d;color:#ccc}.drawer-section .speed-buttons button.active{background:#f6f6f6;border-color:#fff;color:#111}
+.drawer-section .telemetry{border-color:#343437;background:#101012;padding:12px;margin:8px 0}.drawer-section .read-grid{gap:4px}
+.drawer-section .spec-row{border-color:#343437}.drawer-section .note,.drawer-section .strategy-desc{color:#aaa}
+.drawer-section .checkbox-row{display:flex;justify-content:space-between}.drawer-section .checkbox-row input{accent-color:#fff}
+.settings-hint{font-size:11px;line-height:1.65;color:#a6a6aa;margin:0 0 8px}.drawer-status{font-size:11px;color:#b3b3bb;line-height:1.6}
+[hidden]{display:none!important}
+@media(max-width:730px){main{padding:11px 9px 25px}.command-strip{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:9px}.command-left{grid-column:1;grid-row:1}.command-right{grid-column:2;grid-row:1}.command-center{grid-column:1/-1;grid-row:2;justify-content:center}.command-strip .primary{flex:1;min-width:0}.scene-card{height:clamp(530px,74vh,770px);border-radius:12px}.hud-row{top:12px;left:9px;right:9px;gap:5px}.score-card{min-width:0;padding:8px;gap:5px;flex:1}.score-card .score-val{font-size:21px}.team-name{font-size:9px}.team-desc{font-size:9px}.match-center{padding:8px 7px;min-width:88px}.time{font-size:22px}.timer-label{font-size:8px}.top-pills{top:76px;gap:5px}.top-pill{font-size:9px}.toast-stack{bottom:76px;width:calc(100% - 18px)}.battle-toast{padding:9px 10px 10px 14px}.battle-toast .toast-meta{font-size:9px}.battle-toast .toast-reason{font-size:10px}.scene-tip{display:none}.viewport-bottom{justify-content:center}.event-section{padding:15px}.event-head{align-items:start;flex-direction:column;gap:3px}}
+@media(prefers-reduced-motion:reduce){.battle-toast{animation:none!important}.battle-toast.fading{animation:none!important}}
+
+</style></head>
 <body>
-<header>
- <div class="brand"><div class="brand-mark">Σ</div><div><div class="brand-name">SUMO<span>//</span>LAB</div><div class="brand-sub">AUTONOMOUS ROBOTICS SIMULATOR</div></div></div>
- <div class="header-right"><span class="live-pill">FSM LOCAL + GPT ONLINE OPCIONAL</span><button id="resetTop" class="ghostbtn">↺ Reiniciar</button></div>
-</header>
 <main>
-<div class="intro"><div><div class="eyebrow">Engineering Challenge 2026 / Laboratorio virtual</div><h1>Arena de combate autónomo</h1><p>Dos robots mini sumo con cerebros GPT independientes, control de seguridad local y física aproximada.</p></div><div class="build">SIMULADOR WEB · GPT v3.0<br>ESP32-S3 · FSM · 500 g</div></div>
-<div class="layout">
- <section class="stage-col">
-  <div class="arena-layout">
-  <aside class="brain-panel brain-a" id="brainPanelA" aria-label="Cerebro táctico del Sumobot A">
-   <div class="brain-top"><div><div class="brain-label">◉ CEREBRO GPT · A</div><span class="brain-meta" id="brainSourceA">Esperando API</span></div><span class="brain-dot" id="brainDotA"></span></div>
-   <div><div class="brain-section-label">Decisión táctica actual</div><div class="brain-decision" id="brainTacticA">En espera</div><div class="brain-status" id="brainStatusA" role="status">Aún no comenzó el combate.</div></div>
-   <div><div class="brain-section-label">Explicación de la decisión</div><div class="brain-reason" id="brainReasonA">Las decisiones del modelo aparecerán aquí cuando se consulte la API.</div></div>
-   <div class="brain-diagnostics" id="brainDiagBoxA"><div class="brain-diag-main" id="brainDiagA">Movimiento sin analizar</div><div class="brain-diag-detail" id="brainDiagDetailA">Detección de giros repetitivos activada.</div></div>
-   <div class="brain-facts"><span>Latencia: <strong id="brainLatencyA">—</strong></span><span>Cambios: <strong id="brainChangesA">0</strong></span></div>
-   <div><div class="brain-section-label">Historial de decisiones</div><div class="brain-history" id="brainHistoryA" aria-live="polite"><div class="brain-history-item">Sin decisiones.</div></div></div>
-   <div class="brain-foot">Se muestran acciones y motivos resumidos, no razonamiento interno del modelo.</div>
-  </aside>
-  <div class="scene-card" id="stage"><canvas id="gl" aria-label="Escenario 3D de combate de dos robots sumo" role="img"></canvas><div class="scene-vignette"></div>
-   <div class="hud-row"><div class="score-card"><div class="team-bar"></div><div><div class="team-name">SUMOBOT A</div><div class="team-desc" id="nameA">Agresivo</div></div><span class="score-val" id="scoreA">0</span></div><div class="match-center"><div class="time" id="clock">01:00</div><div class="timer-label" id="roundLabel">ASALTO 1 / 3</div></div><div class="score-card orange"><div class="team-bar"></div><div><div class="team-name">SUMOBOT B</div><div class="team-desc" id="nameB">Equilibrado</div></div><span class="score-val" id="scoreB">0</span></div></div>
+<div class="command-strip">
+  <div class="command-left"><div class="command-eyebrow">SUMO / ARENA</div><small>ENGINEERING CHALLENGE 2026 · 77 CM</small></div>
+  <div class="command-center"><button class="primary" id="startBtn">▶ Empezar match</button><button class="secondary" id="pauseBtn" title="Pausar/reanudar" aria-label="Pausar o reanudar" disabled>Ⅱ</button></div>
+  <div class="command-right"><button class="secondary icon-settings" id="settingsToggle" aria-label="Abrir configuración" aria-expanded="false" aria-controls="settingsDrawer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.3a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6Z"/><path d="M19.5 12a7 7 0 0 0-.08-1.05l2-1.55-2-3.46-2.37.95a8.1 8.1 0 0 0-1.82-1.05L14.9 3h-4l-.34 2.84a8.1 8.1 0 0 0-1.82 1.05l-2.37-.95-2 3.46 2 1.55a7 7 0 0 0 0 2.1l-2 1.55 2 3.46 2.37-.95c.54.43 1.15.78 1.82 1.05L10.9 21h4l.34-2.84a8.1 8.1 0 0 0 1.82-1.05l2.37.95 2-3.46-2-1.55A7 7 0 0 0 19.5 12Z"/></svg> Ajustes</button></div>
+</div>
+<section class="stage-col">
+ <div class="scene-card" id="stage">
+   <canvas id="gl" aria-label="Combate de sumobots 3D" role="img"></canvas><div class="scene-vignette"></div>
+   <div class="hud-row"><div class="score-card"><div class="team-bar"></div><div><div class="team-name">SUMOBOT A</div><div class="team-desc" id="nameA">GPT ONLINE</div></div><span class="score-val" id="scoreA">0</span></div><div class="match-center"><div class="time" id="clock">01:00</div><div class="timer-label" id="roundLabel">ASALTO 1 / 3</div></div><div class="score-card orange"><div class="team-bar"></div><div><div class="team-name">SUMOBOT B</div><div class="team-desc" id="nameB">GPT ONLINE</div></div><span class="score-val" id="scoreB">0</span></div></div>
    <div class="top-pills"><span class="top-pill" id="statusPill">● EN ESPERA</span><span class="top-pill" id="sensorsPill">Sensores activos</span></div>
-   <div class="center-overlay" id="centerOverlay"><div class="kicker" id="overlayKicker">ESCENARIO LISTO</div><div class="big" id="overlayBig">VS</div><div class="message" id="overlayText">Configura las estrategias y comienza el combate.</div></div>
-   <div class="viewport-bottom"><div class="scene-tip">Arrastra para orbitar · Rueda para acercar<br>Espacio: pausa/reanuda · R: reinicia</div><div class="camera-btns"><button id="cam3d" class="active">◈ 3D</button><button id="camTop">⊙ Cenital</button><button id="camReset">⌖ Centrar</button></div></div>
-  </div>
-  <aside class="brain-panel brain-b" id="brainPanelB" aria-label="Cerebro táctico del Sumobot B">
-   <div class="brain-top"><div><div class="brain-label">◉ CEREBRO GPT · B</div><span class="brain-meta" id="brainSourceB">Esperando API</span></div><span class="brain-dot" id="brainDotB"></span></div>
-   <div><div class="brain-section-label">Decisión táctica actual</div><div class="brain-decision" id="brainTacticB">En espera</div><div class="brain-status" id="brainStatusB" role="status">Aún no comenzó el combate.</div></div>
-   <div><div class="brain-section-label">Explicación de la decisión</div><div class="brain-reason" id="brainReasonB">Las decisiones del modelo aparecerán aquí cuando se consulte la API.</div></div>
-   <div class="brain-diagnostics" id="brainDiagBoxB"><div class="brain-diag-main" id="brainDiagB">Movimiento sin analizar</div><div class="brain-diag-detail" id="brainDiagDetailB">Detección de giros repetitivos activada.</div></div>
-   <div class="brain-facts"><span>Latencia: <strong id="brainLatencyB">—</strong></span><span>Cambios: <strong id="brainChangesB">0</strong></span></div>
-   <div><div class="brain-section-label">Historial de decisiones</div><div class="brain-history" id="brainHistoryB" aria-live="polite"><div class="brain-history-item">Sin decisiones.</div></div></div>
-   <div class="brain-foot">Se muestran acciones y motivos resumidos, no razonamiento interno del modelo.</div>
-  </aside>
-  </div><!-- arena-layout -->
-  <div class="under-stage">
-   <div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Telemetría A</span><span id="stateA" class="tele-state">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="aLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="aCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="aRight">OFF</strong></div></div><div class="line-read"><span>QTR borde izquierdo <b id="aLineL">LIBRE</b></span><span>Derecho <b id="aLineR">LIBRE</b></span></div></div>
-   <div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Telemetría B</span><span id="stateB" class="tele-state orange">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="bLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="bCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="bRight">OFF</strong></div></div><div class="line-read"><span>QTR borde izquierdo <b id="bLineL">LIBRE</b></span><span>Derecho <b id="bLineR">LIBRE</b></span></div></div>
-  </div>
- </section>
- <aside class="sidebar">
-  <section class="panel" id="loginPanel"><div class="panel-title">Acceso privado a GPT <small>RENDER · API PROTEGIDA</small></div>
-   <p style="font-size:11px;line-height:1.6;color:#9eb3c7;margin:4px 0 10px">Introduce la clave <b>SUMOLAB_ACCESS_TOKEN</b> configurada en Render. <b>No es tu API Key de OpenAI.</b></p>
-   <label class="select-label" for="accessCode">Código privado del laboratorio</label>
-   <input id="accessCode" type="password" autocomplete="off" spellcheck="false" placeholder="Código de acceso" style="width:100%;background:#101d2a;border:1px solid #344759;border-radius:8px;color:#eaf2fc;padding:10px;box-sizing:border-box;margin-bottom:8px"/>
-   <button id="unlockGPT" class="ghostbtn" style="width:100%">Validar acceso a GPT</button>
-   <p id="accessState" role="status" style="color:#a5bed0;font-size:11px;line-height:1.6;margin:8px 0 0">Sin validar. Las estrategias FSM funcionan sin acceso.</p>
-  </section>
-  <section class="panel"><div class="panel-title">Configuración de combate <small>CEREBROS GPT / FSM</small></div>
-   <div class="team-row"><div class="swatch"></div><div><strong>Sumobot A</strong><small>Microcontrolador independiente</small></div></div><label for="stratA" class="select-label">Algoritmo autónomo</label><select id="stratA"><option value="gpt">GPT ONLINE · cerebro estratégico</option><option value="agresivo">Agresivo · ataque frontal</option><option value="equilibrado">Equilibrado · buscar y atacar</option><option value="defensivo">Defensivo · proteger borde</option><option value="flanqueador">Flanqueador · ataque curvo</option><option value="aleatorio">Explorador · búsqueda variable</option></select><p class="strategy-desc" id="descA"></p>
-   <div class="panel-sep"></div><div class="team-row"><div class="swatch orange"></div><div><strong>Sumobot B</strong><small>Microcontrolador independiente</small></div></div><label for="stratB" class="select-label">Algoritmo autónomo</label><select id="stratB"><option value="gpt">GPT ONLINE · cerebro estratégico</option><option value="equilibrado">Equilibrado · buscar y atacar</option><option value="agresivo">Agresivo · ataque frontal</option><option value="defensivo">Defensivo · proteger borde</option><option value="flanqueador">Flanqueador · ataque curvo</option><option value="aleatorio">Explorador · búsqueda variable</option></select><p class="strategy-desc" id="descB"></p>
-   <div class="panel-sep"></div><div class="slider-head"><span>Disposición de salida</span></div><select id="formation"><option value="automatico">Reglamentaria · cambia por asalto</option><option value="frontal">Frente a frente</option><option value="diagonal">Diagonal</option><option value="espaldas">Espaldas opuestas</option></select>
-  </section>
-  <section class="panel"><div class="panel-title">Parámetros físicos <small>AJUSTABLES</small></div>
-   <div class="rangerow"><div class="slider-head"><span>Velocidad nominal de motores</span><strong id="rpmVal">500 RPM</strong></div><input type="range" id="rpm" min="200" max="500" step="25" value="500"><div class="range-labels"><span>200 RPM</span><span>N20 · 6 V · 500 RPM</span></div></div>
-   <div class="rangerow"><div class="slider-head"><span>Alcance de sensores JS40F</span><strong id="reachVal">40 cm</strong></div><input type="range" id="reach" min="15" max="40" step="5" value="40"><div class="range-labels"><span>15 cm</span><span>40 cm nominales</span></div></div>
-   <div class="rangerow"><div class="slider-head"><span>Agarre de las ruedas</span><strong id="gripVal">100%</strong></div><input type="range" id="grip" min="55" max="130" step="5" value="100"><div class="range-labels"><span>Bajo</span><span>Alto</span></div></div>
-   <label class="checkbox-row" for="showSensors"><span>Mostrar campos de visión IR</span><input type="checkbox" id="showSensors" checked></label>
-   <label class="checkbox-row" for="showGrid"><span>Mostrar retícula de la arena</span><input type="checkbox" id="showGrid" checked></label>
-  </section>
-  <section class="panel"><div class="panel-title">Control de simulación <small id="controlStatus">PREPARADO</small></div><div class="sim-controls"><button class="primary" id="startBtn">▶ Iniciar asalto</button><button class="secondary" id="pauseBtn" title="Pausar o reanudar" disabled>Ⅱ</button></div><div class="panel-sep"></div><div class="slider-head"><span>Velocidad del tiempo</span><strong id="speedText">1×</strong></div><div class="speed-buttons" id="speedButtons"><button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button></div></section>
-  <section class="panel"><div class="panel-title">Registro de eventos <small>GPT / FSM</small></div><div class="event-log" id="eventLog"><div class="emptylog">Los eventos del asalto aparecerán aquí.</div></div></section>
-  <section class="panel"><div class="panel-title">Especificaciones del escenario</div><div class="spec-row"><span>Dohyo</span><strong>Ø 77 cm</strong></div><div class="spec-row"><span>Robot (máximo)</span><strong>10 × 10 cm</strong></div><div class="spec-row"><span>Masa por robot</span><strong>500 g</strong></div><div class="spec-row"><span>Tracción</span><strong>2 N20 · diferencial</strong></div><div class="spec-row"><span>Sensores</span><strong>3 JS40F + 2 QTR-1A</strong></div><div class="spec-row"><span>Control</span><strong>FSM · 500 Hz</strong></div><div class="spec-row"><span>Formato</span><strong>60 s · mejor de 3</strong></div><p class="note">Modelo educativo con dinámica planar simplificada, contacto por círculos y sensores IR aproximados. No predice resultados reales ni sustituye ensayos físicos.</p></section>
- </aside>
-</div><div class="help"><strong>Cómo funciona:</strong> cada robot percibe al rival con tres sectores infrarrojos y el borde con dos sensores reflectivos. Su controlador elige <em>buscar, orientar, atacar o escapar</em> mediante estrategias locales o cerebros GPT a través del servidor seguro; las maniobras de seguridad siempre son locales. El botón inicia una cuenta reglamentaria de 5 segundos antes de mover los motores.</div>
+   <div class="center-overlay" id="centerOverlay"><div class="kicker" id="overlayKicker">ESCENARIO LISTO</div><div class="big" id="overlayBig">VS</div><div class="message" id="overlayText">Los cerebros esperan el primer asalto.</div></div>
+   <div class="toast-stack" id="battleToasts" aria-live="polite" aria-label="Diálogos tácticos de ambos sumobots"></div>
+   <div class="viewport-bottom"><div class="scene-tip">Arrastra para orbitar · Rueda para acercar<br>Espacio: pausa · R: reinicia</div><div class="camera-btns"><button id="cam3d" class="active">◈ 3D</button><button id="camTop">⊙ Cenital</button><button id="camReset">⌖ Centrar</button></div></div>
+ </div>
+</section>
+<section class="event-section" aria-label="Registro formal de eventos"><div class="event-head"><h2>◉ REGISTRO DE EVENTOS</h2><div class="event-actions"><small>Historial formal de decisiones, sensores y resultados</small><button id="exportLog" class="log-export" title="Guardar el registro formal en texto">↓ Exportar .txt</button></div></div><div class="event-log" id="eventLog"><div class="emptylog">Los eventos del combate aparecerán aquí.</div></div></section>
 </main>
+<div class="settings-backdrop" id="settingsBackdrop" hidden></div>
+<aside class="settings-drawer" id="settingsDrawer" aria-label="Ajustes del simulador" role="dialog" aria-modal="true" hidden>
+  <div class="drawer-top"><div><div class="drawer-kicker">LABORATORIO / CONTROL</div><h2>Configuración</h2></div><button class="settings-close" id="settingsClose" aria-label="Cerrar ajustes">✕</button></div>
+  <div class="drawer-section"><h3>Cerebros y estrategias</h3>
+    <label for="stratA">Sumobot A · controlador</label><select id="stratA"><option value="gpt">GPT ONLINE · cerebro A</option><option value="agresivo">Agresivo</option><option value="equilibrado">Equilibrado</option><option value="defensivo">Defensivo</option><option value="flanqueador">Flanqueador</option><option value="aleatorio">Explorador</option></select><p class="strategy-desc" id="descA"></p>
+    <label for="stratB">Sumobot B · controlador</label><select id="stratB"><option value="gpt">GPT ONLINE · cerebro B</option><option value="equilibrado">Equilibrado</option><option value="agresivo">Agresivo</option><option value="defensivo">Defensivo</option><option value="flanqueador">Flanqueador</option><option value="aleatorio">Explorador</option></select><p class="strategy-desc" id="descB"></p>
+    <label for="formation">Disposición de salida</label><select id="formation"><option value="automatico">Alterna por asalto</option><option value="frontal">Frente a frente</option><option value="diagonal">Diagonal</option><option value="espaldas">Espaldas opuestas</option></select>
+  </div>
+  <div class="drawer-section"><h3>Frases anime · editables por estrategia</h3><p class="settings-hint">Personaliza lo que dice cada robot según la táctica. Se guarda automáticamente en este navegador. Las frases son diálogos de exhibición, no instrucciones enviadas al GPT.</p>
+    <label for="phraseBot">Personalidad del robot</label><select id="phraseBot"><option value="A">SUMOBOT A</option><option value="B">SUMOBOT B</option></select>
+    <label for="phraseTactic">Estrategia a personalizar</label><select id="phraseTactic"><option value="agresivo">Agresivo</option><option value="equilibrado">Equilibrado</option><option value="defensivo">Defensivo</option><option value="flanqueador">Flanqueador</option><option value="aleatorio">Explorador</option><option value="romper_ciclo">Romper ciclo</option></select>
+    <label for="phraseText">Línea de diálogo</label><textarea id="phraseText" maxlength="220" placeholder="¡No subestimes mi poder!" spellcheck="true"></textarea>
+    <p class="settings-hint" id="phraseSaved">Edición guardada en este dispositivo.</p><div class="drawer-buttons"><button id="previewPhrase">▶ Previsualizar en la arena</button><button id="restorePhrase">↺ Restablecer esta frase</button></div>
+  </div>
+  <div class="drawer-section"><h3>Parámetros físicos</h3>
+   <div class="rangerow"><div class="slider-head"><span>Motor N20</span><strong id="rpmVal">500 RPM</strong></div><input type="range" id="rpm" min="200" max="500" step="25" value="500"></div>
+   <div class="rangerow"><div class="slider-head"><span>Alcance IR JS40F</span><strong id="reachVal">40 cm</strong></div><input type="range" id="reach" min="15" max="40" step="5" value="40"></div>
+   <div class="rangerow"><div class="slider-head"><span>Agarre de ruedas</span><strong id="gripVal">100%</strong></div><input type="range" id="grip" min="55" max="130" step="5" value="100"></div>
+   <label class="checkbox-row" for="showSensors"><span>Mostrar campos IR</span><input id="showSensors" type="checkbox" checked></label>
+   <label class="checkbox-row" for="showGrid"><span>Mostrar retícula</span><input id="showGrid" type="checkbox" checked></label>
+   <label>Velocidad del tiempo <strong id="speedText">1×</strong></label><div class="speed-buttons" id="speedButtons"><button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button></div>
+   <div class="drawer-buttons"><button id="resetTop">↺ Reiniciar combate</button></div><small class="drawer-status" id="controlStatus">PREPARADO</small>
+  </div>
+  <div class="drawer-section"><h3>Sensores en vivo</h3><div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Sensores A</span><span id="stateA" class="tele-state">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="aLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="aCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="aRight">OFF</strong></div></div><div class="line-read"><span>QTR izq. <b id="aLineL">LIBRE</b></span><span>Der. <b id="aLineR">LIBRE</b></span></div></div><div class="telemetry"><div class="tele-head"><span class="mini-title">◉ Sensores B</span><span id="stateB" class="tele-state">ESPERA</span></div><div class="read-grid"><div class="read-item"><span>IZQUIERDA</span><strong id="bLeft">OFF</strong></div><div class="read-item"><span>CENTRAL</span><strong id="bCenter">OFF</strong></div><div class="read-item"><span>DERECHA</span><strong id="bRight">OFF</strong></div></div><div class="line-read"><span>QTR izq. <b id="bLineL">LIBRE</b></span><span>Der. <b id="bLineR">LIBRE</b></span></div></div></div>
+  <div class="drawer-section"><h3>Servicio GPT</h3><p class="settings-hint" id="providerStatus">Verificando disponibilidad...</p><p class="settings-hint">Acceso integrado para esta demostración. La clave de OpenAI permanece solo en Render. <strong>Una contraseña incluida en el frontend no protege una web pública:</strong> configura límites y presupuesto antes de habilitar GPT.</p></div>
+  <div class="drawer-section"><h3>Especificaciones</h3><div class="spec-row"><span>Dohyo</span><strong>Ø 77 cm</strong></div><div class="spec-row"><span>Robot</span><strong>10 × 10 cm · 500 g</strong></div><div class="spec-row"><span>Motores</span><strong>2 × N20 · 500 RPM</strong></div><div class="spec-row"><span>Sensores</span><strong>3 × JS40F + 2 × QTR-1A</strong></div><div class="spec-row"><span>Control</span><strong>FSM · 500 Hz</strong></div><div class="spec-row"><span>Formato</span><strong>60 s · mejor de 3</strong></div><p class="note">Simulación física aproximada; no reemplaza pruebas reales.</p></div>
+</aside>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
@@ -137,7 +180,7 @@ function startBreaker(rb,why){
   rb.breakerT=2.1;rb.breakerDuration=2.1;rb.searchDir=rb.i?1:-1;
   rb.monitor.alert=false;rb.monitor.samples=[];rb.monitor.lastSample=-1;rb.monitor.lastAlertAt=simClock;
   rb.brain.status='MANIOBRA ANTI-CICLO';rb.brain.motivo=why;
-  brainEntry(rb,'anti',why);log('Robot '+(rb.i?'B':'A')+' rompe ciclo: '+why,rb.i?'b':'a');
+  brainEntry(rb,'anti',why);log('Robot '+(rb.i?'B':'A')+' rompe ciclo: '+why,rb.i?'b':'a');if(phase==='running')emitBattleToast(rb,'romper_ciclo',why,'control');
 }
 // Solo el simulador dispone de trayectoria exacta; esta señal no forma parte de los cinco sensores físicos.
 function monitorMovement(rb){
@@ -180,16 +223,85 @@ function formation(){let f=settings.formation;if(f==='automatico') f=['frontal',
 function locate(){const [a,b]=robots, f=formation();if(f==='frontal'){Object.assign(a,{x:0,z:-.235,a:0});Object.assign(b,{x:0,z:.235,a:Math.PI})}
 else if(f==='diagonal'){Object.assign(a,{x:-.225,z:-.105,a:1.13});Object.assign(b,{x:.225,z:.105,a:Math.PI+1.13})}
 else {Object.assign(a,{x:-.115,z:0,a:-Math.PI/2});Object.assign(b,{x:.115,z:0,a:Math.PI/2})}
-for(const rb of robots){Object.assign(rb,{v:0,w:0,l:0,r:0,state:'ESPERA',sensors:[false,false,false],lines:[false,false],escapeT:0,searchT:0,searchDir:rb.i?1:-1,lastLogged:'',breakerT:0,breakerDuration:0})}
+for(const rb of robots){Object.assign(rb,{v:0,w:0,l:0,r:0,state:'ESPERA',sensors:[false,false,false],lines:[false,false],escapeT:0,searchT:0,searchDir:rb.i?1:-1,lastLogged:'',lastToastAt:-100,breakerT:0,breakerDuration:0})}
 measure();for(const rb of robots)resetMonitor(rb);}
-function reset(){llmNonce++;for(const rb of robots){rb.llmHistory=[];rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.llmPending=false;rb.breakerT=0;
+function reset(){clearToasts();llmNonce++;for(const rb of robots){rb.llmHistory=[];rb.pendingBattleToast=null;rb.lastToastAt=-100;rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.llmPending=false;rb.breakerT=0;
  rb.brain={source:'',status:'En espera',motivo:'No hay decisiones todavía.',latency:null,changes:0,history:[],errors:0};rb.monitor.count=0;resetMonitor(rb)}
  clearTrails();round=1;lastWinner=-1;scores[0]=0;scores[1]=0;time=60;countdown=5;simClock=0;carry=0;phase='ready';logCount=0;
  el.eventLog.innerHTML='<div class="emptylog">Los eventos del asalto aparecerán aquí.</div>';locate();log('Sistema listo. Algoritmos locales cargados.');ui(true)}
 function timeStr(){return fmt(time)}
-function log(msg,tone='neutral'){const row=document.createElement('div');row.className='log-entry';const ts=document.createElement('time');ts.textContent=fmt(60-time);const content=document.createElement('span');content.className=tone;content.textContent=msg;row.append(ts,content);if(!logCount++)el.eventLog.textContent='';el.eventLog.prepend(row);while(el.eventLog.children.length>25)el.eventLog.lastElementChild.remove()}
+function log(msg,tone='neutral'){const row=document.createElement('div');row.className='log-entry';const ts=document.createElement('time');ts.textContent=fmt(60-time);const content=document.createElement('span');content.className=tone;content.textContent=msg;row.append(ts,content);if(!logCount++)el.eventLog.textContent='';el.eventLog.prepend(row);while(el.eventLog.children.length>350)el.eventLog.lastElementChild.remove()}
+// Diálogos escénicos: NO son pensamiento oculto del LLM; las explicaciones del modelo van separadas.
+const DEFAULT_DIALOGUE={
+ A:{
+  agresivo:'¡Mi espíritu arde! ¡Recibe todo el poder de mi embestida!',
+  equilibrado:'La victoria no depende de la fuerza... ¡sino de dominar cada movimiento!',
+  defensivo:'¡Ni un paso atrás! Esta arena es mi territorio.',
+  flanqueador:'¿Dónde estás? ¡No te ocultes! ¡Voy a encontrarte!',
+  aleatorio:'¡Mi próxima jugada será una sorpresa! ¡Intenta seguirme!',
+  romper_ciclo:'¡Romperé este destino repetido! ¡Cambio de rumbo, ahora!'
+ },
+ B:{
+  agresivo:'¡No pienso rendirme! ¡Este golpe decidirá nuestro duelo!',
+  equilibrado:'¡Mantén la calma... observa... y ahora, contraataca!',
+  defensivo:'¡Tu ataque no podrá quebrar mi guardia! ¡Resistiré!',
+  flanqueador:'¡Te rodearé como un relámpago! ¡No escaparás!',
+  aleatorio:'¡Je! ¿Creías haber adivinado mis movimientos?',
+  romper_ciclo:'¡Se acabó el círculo eterno! ¡Despierta, nuevo plan!'
+ }
+};
+const DIALOGUE_KEY='sumolab_v4_anime_dialogues';
+function loadDialogue(){try{const data=JSON.parse(localStorage.getItem(DIALOGUE_KEY)||'{}');return Object.fromEntries(['A','B'].map(k=>[k,Object.fromEntries(Object.keys(DEFAULT_DIALOGUE[k]).map(t=>[t,typeof data?.[k]?.[t]==='string'?data[k][t].slice(0,220):DEFAULT_DIALOGUE[k][t]]))]));}catch{return JSON.parse(JSON.stringify(DEFAULT_DIALOGUE));}}
+const dialogue=loadDialogue();
+function saveDialogue(){try{localStorage.setItem(DIALOGUE_KEY,JSON.stringify(dialogue));$('phraseSaved').textContent='Cambios guardados en este navegador.';}catch{$('phraseSaved').textContent='No se puede guardar en este navegador.';}}
+function dialogueQuote(bot,tactic){return (dialogue[bot]?.[tactic]||DEFAULT_DIALOGUE[bot]?.[tactic]||'¡Al ataque!').trim();}
+const liveToastTimers=new Map();
+function clearToasts(){for(const t of liveToastTimers.values())clearTimeout(t);liveToastTimers.clear();$('battleToasts').replaceChildren();}
+function emitBattleToast(rb,tactic,reason,origin='fsm'){
+ const arena=$('battleToasts'),bot=rb.i?'B':'A';
+ const speech=dialogueQuote(bot,tactic);if(!speech)return;
+ const card=document.createElement('article');card.className='battle-toast'+(rb.i?' robot-b':'');
+ const meta=document.createElement('div');meta.className='toast-meta';
+ const tag=document.createElement('span');tag.className='toast-bot';tag.textContent='BOT '+bot;
+ const timeLabel=document.createElement('span');timeLabel.textContent='T−'+time.toFixed(1)+'s';
+ const originTag=document.createElement('span');originTag.className='toast-origin';originTag.textContent=origin==='mock'?'DEMO · SIN GPT':origin==='control'||origin==='control_anti_bucle'?'SEGURIDAD LOCAL':origin==='preview'?'VISTA PREVIA':origin==='guided'?'GPT + CONTROL LOCAL':origin==='fsm'?'MANIOBRA LOCAL':'GPT ONLINE';
+ const tacticLabel=document.createElement('strong');tacticLabel.textContent=labels[tactic]||tactic;
+ const reasonEl=document.createElement('span');reasonEl.className='toast-reason';reasonEl.textContent=' · '+String(reason||'Decisión táctica actual.').slice(0,115);
+ const quote=document.createElement('p');quote.className='toast-quote';quote.textContent='“'+speech+'”';
+ meta.append(tag,timeLabel,tacticLabel,originTag,reasonEl);card.append(meta,quote);arena.append(card);
+ while(arena.children.length>4){const prev=arena.firstElementChild;clearTimeout(liveToastTimers.get(prev));liveToastTimers.delete(prev);prev.remove();}
+ const timer=setTimeout(()=>{card.classList.add('fading');const finish=setTimeout(()=>{card.remove();liveToastTimers.delete(card);},240);liveToastTimers.set(card,finish)},5700);
+ liveToastTimers.set(card,timer);
+}
+function contextualReason(rb,st){
+ if(st==='BORDE')return '¡Alerta de borde blanco! Maniobra de protección.';
+ if(st==='DESBLOQUEO')return 'Trayectoria repetida: ejecutar maniobra de desbloqueo.';
+ if(st==='ATAQUE')return 'Rival frontal detectado; iniciar empuje.';
+ if(st==='FLANQUEAR')return 'Rival detectado; aproximación lateral.';
+ if(st==='ALINEAR')return 'Rival en sector lateral; corregir orientación.';
+ return 'Sin rival detectado ni alertas de borde; barrer para localizarlo y variar la maniobra actual.';
+}
+function setupDialogueEditor(){
+ const bot=$('phraseBot'),tactic=$('phraseTactic'),field=$('phraseText');
+ const fill=()=>{field.value=dialogue[bot.value][tactic.value];$('phraseSaved').textContent='Frase editable; guardado automático.';};
+ bot.addEventListener('change',fill);tactic.addEventListener('change',fill);
+ field.addEventListener('input',()=>{dialogue[bot.value][tactic.value]=field.value.slice(0,220);saveDialogue();});
+ $('restorePhrase').addEventListener('click',()=>{dialogue[bot.value][tactic.value]=DEFAULT_DIALOGUE[bot.value][tactic.value];fill();saveDialogue();});
+ $('previewPhrase').addEventListener('click',()=>{const rb=robots[bot.value==='A'?0:1];emitBattleToast(rb,tactic.value,'Vista previa del diálogo personalizado.','preview');closeDrawer();});
+ fill();
+}
+function setupDrawer(){const drawer=$('settingsDrawer'),shade=$('settingsBackdrop'),btn=$('settingsToggle');
+ const open=()=>{drawer.hidden=false;shade.hidden=false;btn.setAttribute('aria-expanded','true');$('settingsClose').focus();};
+ window.closeDrawer=()=>{drawer.hidden=true;shade.hidden=true;btn.setAttribute('aria-expanded','false');btn.focus();};
+ $('exportLog').addEventListener('click',()=>{const rows=[...$('eventLog').querySelectorAll('.log-entry')].reverse().map(e=>e.textContent.trim());const blob=new Blob([['SUMO//LAB AI · REGISTRO DEL COMBATE',new Date().toISOString(),...rows].join('\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='sumolab-eventos-'+new Date().toISOString().slice(0,10)+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+ btn.addEventListener('click',()=>drawer.hidden?open():closeDrawer());
+ $('settingsClose').addEventListener('click',closeDrawer);shade.addEventListener('click',closeDrawer);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!drawer.hidden)closeDrawer();});
+}
+function closeDrawer(){window.closeDrawer?.();}
 function setState(rb,st){if(rb.state===st)return;const old=rb.state;rb.state=st;const notify={'ATAQUE':'ataca frontalmente','BORDE':'detecta el borde: maniobra evasiva','ALINEAR':'corrige orientación','FLANQUEAR':'ejecuta flanqueo','BUSCAR':'explora el dohyo'};
-if(notify[st] && ((st==='ATAQUE'||st==='BORDE') || simClock-rb.lastStateAt>1.1)){log('Robot '+(rb.i?'B':'A')+' '+notify[st]+'.',rb.i?'b':'a');rb.lastStateAt=simClock}}
+if(notify[st] && ((st==='ATAQUE'||st==='BORDE') || simClock-rb.lastStateAt>1.1)){log('Robot '+(rb.i?'B':'A')+' '+notify[st]+'.',rb.i?'b':'a');rb.lastStateAt=simClock;}
+if(phase==='running'&&simClock-(rb.lastToastAt??-100)>(st==='BORDE'?2.2:4.0)&&['BUSCAR','ATAQUE','BORDE','FLANQUEAR','ALINEAR'].includes(st)){const tactic=rb.strategy==='gpt'?rb.llmTactic:rb.strategy;emitBattleToast(rb,st==='BORDE'?'defensivo':tactic,contextualReason(rb,st),rb.strategy==='gpt'?'guided':'fsm');rb.lastToastAt=simClock;}}
 function measure(){const reach=settings.reach;for(const rb of robots){const other=robots[1-rb.i];const offs=[-.64,0,.64];rb.sensors=offs.map((d,j)=>{const sensor=pos(rb,(j-1)*.031,.039);const dx=other.x-sensor.x,dz=other.z-sensor.z,dist=Math.hypot(dx,dz);const angle=wrap(Math.atan2(dx,dz)-rb.a-d);return dist<reach+.037 && Math.abs(angle)<(j===1?.36:.38)});
 rb.lines=[-.032,.032].map(x=>{const s=pos(rb,x,.037);return Math.hypot(s.x,s.z)>=R_LINE;});}}
 function stateMachine(rb,dt){const strat=rb.strategy==='gpt'?(rb.llmTactic==='romper_ciclo'?'aleatorio':rb.llmTactic):rb.strategy;const [left,front,right]=rb.sensors;let [lineL,lineR]=rb.lines;
@@ -229,41 +341,16 @@ if(out[0]||out[1]){if(out[0]&&out[1])endRound(-1,'Salida simultánea');else endR
 }
 function endRound(winner,cause){if(phase!=='running')return;llmNonce++;for(const rb of robots){rb.l=rb.r=rb.v=rb.w=0}
 phase='round_end';lastWinner=winner;if(winner>=0){scores[winner]++;log('Robot '+(winner?'B':'A')+' gana el asalto '+round+'. '+cause+'.',winner?'b':'a');if(scores[winner]>=2){phase='match_end';log('¡Combate finalizado! Campeón: robot '+(winner?'B':'A')+'.')}}else log('Asalto sin ganador: '+cause+'.');ui(true)}
-function begin(){llmNonce++;if(phase==='match_end')reset();if(phase==='ready'||phase==='round_end'){clearTrails();if(phase==='round_end'){if(scores[0]>=2||scores[1]>=2){reset();}else if(lastWinner>=0){round++;}}
-locate();for(const rb of robots){rb.llmNextAt=0;rb.llmPending=false;}time=60;countdown=5;phase='countdown';log('Asalto '+round+': cuenta regresiva de 5 segundos.');ui(true)}else if(phase==='paused'){phase=prevPhase;ui(true)}}
+function begin(){llmNonce++;if(phase==='match_end')reset();if(phase==='ready'||phase==='round_end'){clearToasts();clearTrails();if(phase==='round_end'){if(scores[0]>=2||scores[1]>=2){reset();}else if(lastWinner>=0){round++;}}
+locate();for(const rb of robots){rb.llmNextAt=0;rb.llmPending=false;rb.pendingBattleToast=null;}time=60;countdown=5;phase='countdown';log('Asalto '+round+': cuenta regresiva de 5 segundos.');ui(true)}else if(phase==='paused'){phase=prevPhase;ui(true)}}
 function togglePause(){if(phase==='running'||phase==='countdown'){prevPhase=phase;phase='paused';log('Simulación pausada.')}else if(phase==='paused'){phase=prevPhase;log('Simulación reanudada.')}ui(true)}
 
-// CEREBROS GPT: credencial de laboratorio; NO es la clave de OpenAI.
-function safeGetAccess(){try{return sessionStorage.getItem('sumolab_access')||'';}catch{return '';}}
-function safeSaveAccess(value){try{if(value)sessionStorage.setItem('sumolab_access',value);else sessionStorage.removeItem('sumolab_access');}catch{}}
-let accessToken=safeGetAccess();
-async function unlockGPT(){
-  const input=document.getElementById('accessCode');
-  const state=document.getElementById('accessState');
-  const proposed=input.value.trim();
-  if(!proposed){state.textContent='Introduce la clave de acceso de Render.';return;}
-  state.textContent='Validando acceso...';
-  try{
-    const r=await fetch('/api/auth',{method:'POST',headers:{'X-Sumolab-Access':proposed}});
-    if(!r.ok)throw new Error('Código incorrecto o servidor no disponible.');
-    accessToken=proposed;
-    safeSaveAccess(proposed);
-    input.value='';
-    state.textContent='Acceso validado. Puedes usar GPT ONLINE con ambos robots.';
-    log('Acceso privado a GPT validado.');
-  }catch(e){accessToken='';safeSaveAccess('');state.textContent=String(e.message||e);}
-}
-function checkSavedAccess(){
-  if(accessToken){
-    document.getElementById('accessState').textContent='Hay una clave de acceso guardada en esta pestaña. Puedes probar GPT.';
-  }
-  document.getElementById('unlockGPT').addEventListener('click',unlockGPT);
-  document.getElementById('accessCode').addEventListener('keydown',e=>{if(e.key==='Enter')unlockGPT();});
-}
+// Clave compartida hardcodeada pedida para la demostración. Es visible en el frontend, no un secreto.
+const accessToken='ITESMSON2026';
 // CEREBROS GPT: solo decisiones tacticas. El controlador local conserva prioridad.
 let llmNonce=0;
 async function showProviderStatus(){
-  const pill=document.querySelector('.live-pill');
+  const pill=$('providerStatus');
   try{
     const res=await fetch('/api/status');
     if(!res.ok)throw new Error('Servidor sin respuesta');
@@ -290,10 +377,9 @@ async function requestLLM(rb,nonce){
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),8500);
  const t0=performance.now();rb.brain.status='CONSULTANDO GPT';
  try{
-  if(!accessToken)throw new Error('Introduce y valida el código privado del laboratorio.');
   const res=await fetch('/api/decide',{method:'POST',headers:{'Content-Type':'application/json','X-Sumolab-Access':accessToken},body:JSON.stringify({bot:rb.i?'B':'A',obs}),signal:controller.signal});
   const decision=await res.json();
-  if(res.status===401){accessToken='';safeSaveAccess('');$('accessState').textContent='Acceso incorrecto: vuelve a introducir el código.';}
+  if(res.status===401){$('providerStatus').textContent='Credencial de demostración rechazada por el servidor.';}
   if(!res.ok)throw new Error(decision.error||'Error de API');
   if(nonce!==llmNonce||rb.strategy!=='gpt'||!['running','countdown','paused'].includes(phase))return;
   if(!Object.prototype.hasOwnProperty.call(labels,decision.tactica)||decision.tactica==='gpt')return;
@@ -310,6 +396,8 @@ async function requestLLM(rb,nonce){
   rb.llmHistory=rb.llmHistory.slice(-5);
   brainEntry(rb,'gpt',labels[decision.tactica]+' · '+rb.brain.motivo);
   log((decision.fuente==='mock'?'DEMO ':decision.fuente==='control_anti_bucle'?'CONTROL ':'GPT ')+(rb.i?'B':'A')+' ⇒ '+labels[decision.tactica]+'. '+rb.brain.motivo,rb.i?'b':'a');
+  if(phase==='countdown'){rb.pendingBattleToast={tactic:decision.tactica,reason:rb.brain.motivo,source:decision.fuente||'gpt'};}
+  else{emitBattleToast(rb,decision.tactica,rb.brain.motivo,decision.fuente||'gpt');rb.lastToastAt=simClock;}
   if(rb.llmTactic==='romper_ciclo')startBreaker(rb,'Cambio táctico: '+rb.brain.motivo);
   else if(obs.diagnostico.en_bucle && previous===rb.llmTactic){
     // Ni el modelo ni la API han logrado alterar la táctica: recuperamos el movimiento localmente.
@@ -337,30 +425,11 @@ function tickLLM(){
   }
 }
 
-function update(dt){simClock+=dt;if(phase==='countdown'||phase==='running')tickLLM();if(phase==='countdown'){countdown=Math.max(0,countdown-dt);if(countdown<=0){phase='running';log('¡Motores habilitados! Comienza el asalto.');robots.forEach(r=>{r.state='BUSCAR'});ui(true)}}else if(phase==='running'){time=Math.max(0,time-dt);move(dt);if(time<=0)endRound(-1,'Tiempo agotado (60 s)')}}
-function paintBrain(rb){
- const k=rb.i?'B':'A',b=rb.brain,m=rb.monitor,online=rb.strategy==='gpt';
- $('brainSource'+k).textContent=online?(b.source?b.source.toUpperCase():'MODELO REMOTO · OPENAI'):'CONTROL AUTÓNOMO LOCAL';
- $('brainTactic'+k).textContent=online?(labels[rb.llmTactic]||'En espera'):(labels[rb.strategy]||'FSM LOCAL');
- $('brainReason'+k).textContent=online?b.motivo:'Maniobras programadas; este robot no consulta un modelo de lenguaje.';
- $('brainStatus'+k).textContent=online?b.status:'FSM LOCAL · sin llamadas a API';
- $('brainLatency'+k).textContent=online&&b.latency!==null?b.latency+' ms':'—';
- $('brainChanges'+k).textContent=b.changes;
- const looping=m.alert||rb.breakerT>0;
- const dot=$('brainDot'+k);dot.className='brain-dot '+(looping?'alert':rb.llmPending?'busy':online&&b.source?'live':'');
- const box=$('brainDiagBox'+k);box.className='brain-diagnostics '+(looping?'alert':m.samples.length>2?'ok':'');
- $('brainDiag'+k).textContent=rb.breakerT>0?'ROMPIENDO CICLO':m.alert?'ESTANCAMIENTO DETECTADO':'SIN ALERTA DE BUCLE';
- $('brainDiagDetail'+k).textContent=`Trayecto 6s: ${(m.recorrido*100).toFixed(0)} cm · Avance neto: ${(m.neto*100).toFixed(0)} cm · Giro: ${Math.round(m.giro*180/Math.PI)}° · Alertas: ${m.count}`;
- const history=$('brainHistory'+k);const sig=b.history.map(x=>x.at+'|'+x.text).join('|');
- if(history.dataset.signature!==sig){history.dataset.signature=sig;history.replaceChildren();
-  if(!b.history.length){const e=document.createElement('div');e.className='brain-history-item';e.textContent='Aún no hay decisiones.';history.append(e)}
-  else for(const item of b.history){const e=document.createElement('div');e.className='brain-history-item';const ts=document.createElement('span');ts.className='brain-history-time';ts.textContent='T−'+item.at+'s · ';e.append(ts,document.createTextNode(item.text));history.append(e)}
- }
-}
+function update(dt){simClock+=dt;if(phase==='countdown'||phase==='running')tickLLM();if(phase==='countdown'){countdown=Math.max(0,countdown-dt);if(countdown<=0){phase='running';log('¡Motores habilitados! Comienza el asalto.');robots.forEach(r=>{r.state='BUSCAR';if(r.pendingBattleToast){emitBattleToast(r,r.pendingBattleToast.tactic,r.pendingBattleToast.reason,r.pendingBattleToast.source);r.lastToastAt=simClock;r.pendingBattleToast=null;}});ui(true)}}else if(phase==='running'){time=Math.max(0,time-dt);move(dt);if(time<=0)endRound(-1,'Tiempo agotado (60 s)')}}
 function ui(force=false){needsUI=true;if(!force&&uiTick<.09)return;uiTick=0;el.scoreA.textContent=scores[0];el.scoreB.textContent=scores[1];el.clock.textContent=fmt(time);el.roundLabel.textContent='ASALTO '+round+' / 3';el.nameA.textContent=labels[el.stratA.value];el.nameB.textContent=labels[el.stratB.value];let sText={ready:'● EN ESPERA',countdown:'● CUENTA REGRESIVA',running:'● COMBATE ACTIVO',paused:'Ⅱ PAUSADO',round_end:'● ASALTO FINALIZADO',match_end:'◆ COMBATE TERMINADO'};el.statusPill.textContent=sText[phase];el.sensorsPill.textContent=settings.showSensors?'Conos IR visibles':'Conos IR ocultos';el.controlStatus.textContent=phase==='running'?'EN CURSO':phase==='countdown'?'PREPARACIÓN':phase==='paused'?'PAUSADO':phase==='match_end'?'FINALIZADO':'PREPARADO';
-el.startBtn.textContent=phase==='round_end'?(lastWinner<0?'▶ Repetir asalto':'▶ Siguiente asalto'):phase==='match_end'?'↺ Nuevo combate':phase==='paused'?'▶ Reanudar':phase==='running'||phase==='countdown'?'● En curso':'▶ Iniciar asalto';el.startBtn.disabled=phase==='running'||phase==='countdown';el.startBtn.style.opacity=el.startBtn.disabled?'.48':'1';el.pauseBtn.disabled=!['countdown','running','paused'].includes(phase);el.pauseBtn.textContent=phase==='paused'?'▶':'Ⅱ';
-if(['running','paused'].includes(phase)){el.centerOverlay.classList.add('hidden')}else{el.centerOverlay.classList.remove('hidden');if(phase==='ready'){el.overlayKicker.textContent='ARENA LISTA';el.overlayBig.textContent='VS';el.overlayText.textContent='Configura tus robots y pulsa “Iniciar asalto”.'}else if(phase==='countdown'){el.overlayKicker.textContent='LOS MOTORES ESPERAN';el.overlayBig.textContent=String(Math.max(1,Math.ceil(countdown)));el.overlayText.textContent='Arranque reglamentario · 5 segundos'}else if(phase==='round_end'){el.overlayKicker.textContent='ASALTO '+round+' TERMINADO';el.overlayBig.textContent=lastWinner<0?'—':lastWinner===0?'A':'B';el.overlayText.textContent=lastWinner<0?'Empate: se repite el mismo asalto.':'Punto para el robot '+(lastWinner===0?'A':'B')+'. Inicia el siguiente asalto.'}else if(phase==='match_end'){el.overlayKicker.textContent='GANADOR DEL COMBATE';el.overlayBig.textContent=scores[0]>scores[1]?'A':'B';el.overlayText.textContent='Victoria por '+Math.max(...scores)+' a '+Math.min(...scores)+' · mejor de tres'}}
-for(const rb of robots){paintBrain(rb);const pre=rb.i?'b':'a';$("state"+(rb.i?'B':'A')).textContent=rb.state;['Left','Center','Right'].forEach((suffix,j)=>{const node=$(pre+suffix);node.textContent=rb.sensors[j]?'ON':'OFF';node.className=(rb.sensors[j]?'on ':'')+(rb.i?'orange':'blue')});for(let j=0;j<2;j++){const n=$(pre+(j?'LineR':'LineL'));n.textContent=rb.lines[j]?'BORDE':'LIBRE';n.className=rb.lines[j]?'warn':''}}needsUI=false}
+el.startBtn.textContent=phase==='round_end'?(lastWinner<0?'▶ Repetir asalto':'▶ Siguiente asalto'):phase==='match_end'?'↺ Nuevo combate':phase==='paused'?'▶ Reanudar':phase==='running'||phase==='countdown'?'● En curso':'▶ Empezar match';el.startBtn.disabled=phase==='running'||phase==='countdown';el.startBtn.style.opacity=el.startBtn.disabled?'.48':'1';el.pauseBtn.disabled=!['countdown','running','paused'].includes(phase);el.pauseBtn.textContent=phase==='paused'?'▶':'Ⅱ';
+if(['running','paused'].includes(phase)){el.centerOverlay.classList.add('hidden')}else{el.centerOverlay.classList.remove('hidden');if(phase==='ready'){el.overlayKicker.textContent='ARENA LISTA';el.overlayBig.textContent='VS';el.overlayText.textContent='Configura tus robots y pulsa “Empezar match”.'}else if(phase==='countdown'){el.overlayKicker.textContent='LOS MOTORES ESPERAN';el.overlayBig.textContent=String(Math.max(1,Math.ceil(countdown)));el.overlayText.textContent='Arranque reglamentario · 5 segundos'}else if(phase==='round_end'){el.overlayKicker.textContent='ASALTO '+round+' TERMINADO';el.overlayBig.textContent=lastWinner<0?'—':lastWinner===0?'A':'B';el.overlayText.textContent=lastWinner<0?'Empate: se repite el mismo asalto.':'Punto para el robot '+(lastWinner===0?'A':'B')+'. Inicia el siguiente asalto.'}else if(phase==='match_end'){el.overlayKicker.textContent='GANADOR DEL COMBATE';el.overlayBig.textContent=scores[0]>scores[1]?'A':'B';el.overlayText.textContent='Victoria por '+Math.max(...scores)+' a '+Math.min(...scores)+' · mejor de tres'}}
+for(const rb of robots){const pre=rb.i?'b':'a';$("state"+(rb.i?'B':'A')).textContent=rb.state;['Left','Center','Right'].forEach((suffix,j)=>{const node=$(pre+suffix);node.textContent=rb.sensors[j]?'ON':'OFF';node.className=(rb.sensors[j]?'on ':'')+(rb.i?'orange':'blue')});for(let j=0;j<2;j++){const n=$(pre+(j?'LineR':'LineL'));n.textContent=rb.lines[j]?'BORDE':'LIBRE';n.className=rb.lines[j]?'warn':''}}needsUI=false}
 function hookControls(){['A','B'].forEach(s=>{const select=el['strat'+s];select.addEventListener('change',()=>{el['desc'+s].textContent=desc[select.value];const rb=robots[s==='A'?0:1];rb.strategy=select.value;rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.brain.status=select.value==='gpt'?'Esperando GPT':'FSM LOCAL';rb.brain.motivo='Modo cambiado desde el tablero.';resetMonitor(rb);if(select.value==='gpt'&&settings.speed!==1){document.querySelector('[data-speed="1"]')?.click();}log('Robot '+s+': estrategia '+labels[select.value]+'.',s==='A'?'a':'b');ui(true)});el['desc'+s].textContent=desc[select.value]});el.rpm.addEventListener('input',()=>{settings.rpm=+el.rpm.value;el.rpmVal.textContent=settings.rpm+' RPM'});el.reach.addEventListener('input',()=>{settings.reach=+el.reach.value/100;el.reachVal.textContent=el.reach.value+' cm';buildBeams();measure();ui(true)});el.grip.addEventListener('input',()=>{settings.grip=+el.grip.value/100;el.gripVal.textContent=el.grip.value+'%'});el.formation.addEventListener('change',()=>{settings.formation=el.formation.value;if(phase==='ready'||phase==='round_end')locate();else log('La formación se aplicará en el siguiente asalto.');ui(true)});el.showSensors.addEventListener('change',()=>{settings.showSensors=el.showSensors.checked;ui(true)});el.showGrid.addEventListener('change',()=>{settings.showGrid=el.showGrid.checked});el.startBtn.addEventListener('click',begin);el.pauseBtn.addEventListener('click',togglePause);el.resetTop.addEventListener('click',reset);document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{if(robots.some(r=>r.strategy==='gpt')&&+b.dataset.speed!==1){log('Modo GPT: simulación limitada a 1× para respetar el ritmo de la API.');return;}settings.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('active',x===b));el.speedText.textContent=settings.speed+'×'}));document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea,button'))return;if(e.code==='Space'){e.preventDefault();if(phase==='ready'||phase==='round_end')begin();else togglePause()}if(e.key.toLowerCase()==='r')reset();if(e.key.toLowerCase()==='c')viewDefault();if(e.key.toLowerCase()==='s'){el.showSensors.checked=!el.showSensors.checked;settings.showSensors=el.showSensors.checked;ui(true)}})}
 // ─────────────────────────────────────────────────────────────────────
 // Small dependency-free WebGL 3D engine. Geometry is expressed in meters.
@@ -419,10 +488,10 @@ for(const x of [-.027,.027])g.box(x,.058,-.032,.003,.003,.014,rim);
 return uploaded(g)}
 function makeBeam(i,s){const g=new G();const startX=(s-1)*.031,z=.040,dir=[-.64,0,.64][s],reach=settings.reach,half=s===1?.36:.38;const shade=i?xyz('#f9a867'):xyz('#59e8ed');const N=14;for(let n=0;n<N;n++){const a=dir-half+2*half*n/N,b=dir-half+2*half*(n+1)/N;g.tri([startX,.012,z],[startX+Math.sin(a)*reach,.012,z+Math.cos(a)*reach],[startX+Math.sin(b)*reach,.012,z+Math.cos(b)*reach],shade,[0,1,0]);}return uploaded(g)}
 function buildBeams(){for(const mesh of beamMeshes.flat())removeMesh(mesh);beamMeshes=[0,1].map(i=>[0,1,2].map(s=>makeBeam(i,s)))}
-function makeGround(){const g=new G();g.box(0,-.087,0,5,.012,5,xyz('#0c1824'));return uploaded(g)}
-function makeGrid(){const g=new G();const line=xyz('#213448');for(let k=-12;k<=12;k++){let p=k*.105;g.box(p,-.079,0,.0013,.001,2.6,line);g.box(0,-.079,p,2.6,.001,.0013,line)}return uploaded(g)}
-function makeBase(){let g=new G();g.cylinder(.443,-.036,-.068,xyz('#1a303f'),xyz('#192839'));g.ring(.431,.441,-.035,xyz('#294c60'));g.ring(.405,.409,-.034,xyz('#2b6074'));return uploaded(g)}
-function makeArena(){let g=new G();g.cylinder(RC,.004,-.028,xyz('#0d141c'),xyz('#1e2e38'));g.ring(R_LINE,RC,.005,xyz('#d7dfe5'));g.disk(R_LINE,.007,xyz('#141b23'));
+function makeGround(){const g=new G();g.box(0,-.087,0,5,.012,5,xyz('#0c0c0e'));return uploaded(g)}
+function makeGrid(){const g=new G();const line=xyz('#29292d');for(let k=-12;k<=12;k++){let p=k*.105;g.box(p,-.079,0,.0013,.001,2.6,line);g.box(0,-.079,p,2.6,.001,.0013,line)}return uploaded(g)}
+function makeBase(){let g=new G();g.cylinder(.443,-.036,-.068,xyz('#222226'),xyz('#131316'));g.ring(.431,.441,-.035,xyz('#424246'));g.ring(.405,.409,-.034,xyz('#6b6b72'));return uploaded(g)}
+function makeArena(){let g=new G();g.cylinder(RC,.004,-.028,xyz('#161619'),xyz('#29292d'));g.ring(R_LINE,RC,.005,xyz('#d7dfe5'));g.disk(R_LINE,.007,xyz('#202024'));
 // Subtle central line & registration marks.
 g.ring(.028,.029,.008,xyz('#23323b'));g.disk(.005,.009,xyz('#24424a'));
 for(let j=0;j<48;j++){const a=j*Math.PI/24,r0=.391,r1=j%4===0?.408:.399;g.quad([Math.sin(a-.002)*r0,.005,Math.cos(a-.002)*r0],[Math.sin(a-.002)*r1,.005,Math.cos(a-.002)*r1],[Math.sin(a+.002)*r1,.005,Math.cos(a+.002)*r1],[Math.sin(a+.002)*r0,.005,Math.cos(a+.002)*r0],j%4===0?xyz('#679caa'):xyz('#365365'),[0,1,0])}
@@ -444,7 +513,7 @@ function viewDefault(){camera.az=.45;camera.el=.99;camera.dist=1.15;camera.mode=
 function showCameraMode(){el.cam3d.classList.toggle('active',camera.mode==='3d');el.camTop.classList.toggle('active',camera.mode==='top')}
 function setCamera(mode){camera.mode=mode;if(mode==='top'){camera.el=1.565;camera.az=0;camera.dist=1.04}else{camera.el=.99;camera.az=.45;camera.dist=1.15}showCameraMode()}
 function setupCamera(){el.cam3d.onclick=()=>setCamera('3d');el.camTop.onclick=()=>setCamera('top');el.camReset.onclick=viewDefault;canvas.addEventListener('pointerdown',ev=>{camera.dragging=true;camera.x=ev.clientX;camera.y=ev.clientY;canvas.setPointerCapture(ev.pointerId)});canvas.addEventListener('pointermove',ev=>{if(!camera.dragging)return;const dx=ev.clientX-camera.x,dy=ev.clientY-camera.y;camera.x=ev.clientX;camera.y=ev.clientY;camera.az-=dx*.008;camera.el=clamp(camera.el+dy*.006,.21,1.565);camera.mode='free';el.cam3d.classList.remove('active');el.camTop.classList.remove('active')});canvas.addEventListener('pointerup',()=>camera.dragging=false);canvas.addEventListener('pointercancel',()=>camera.dragging=false);canvas.addEventListener('wheel',ev=>{ev.preventDefault();camera.dist=clamp(camera.dist+ev.deltaY*.0009,.72,2.2)},{passive:false})}
-function render(){if(!rendererReady){renderFallback();return;}const W=Math.max(10,canvas.clientWidth),H=Math.max(10,canvas.clientHeight),dpr=Math.min(window.devicePixelRatio||1,2);let pw=Math.floor(W*dpr),ph=Math.floor(H*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;gl.viewport(0,0,pw,ph)}gl.clearColor(.037,.076,.113,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+function render(){if(!rendererReady){renderFallback();return;}const W=Math.max(10,canvas.clientWidth),H=Math.max(10,canvas.clientHeight),dpr=Math.min(window.devicePixelRatio||1,2);let pw=Math.floor(W*dpr),ph=Math.floor(H*dpr);if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;gl.viewport(0,0,pw,ph)}gl.clearColor(.027,.027,.031,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 const az=camera.az,elv=camera.el,D=camera.dist,eye=[D*Math.sin(az)*Math.cos(elv),D*Math.sin(elv)+.018,D*Math.cos(az)*Math.cos(elv)],target=[0,0,0];gl.useProgram(program);gl.uniformMatrix4fv(uni.uProjection,false,perspective(47*Math.PI/180,W/H,.02,8));gl.uniformMatrix4fv(uni.uView,false,lookAt(eye,target));gl.uniform3fv(uni.uEye,new Float32Array(eye));
 drawMesh(geo.floor);if(settings.showGrid)drawMesh(geo.grid);drawMesh(geo.base);drawMesh(geo.arena);
 if(trailMesh)drawMesh(trailMesh);
@@ -458,7 +527,7 @@ function renderFallback(){
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const W=canvas.clientWidth,H=canvas.clientHeight,dpr=Math.min(window.devicePixelRatio||1,1.5);
  if(canvas.width!==Math.floor(W*dpr)||canvas.height!==Math.floor(H*dpr)){canvas.width=Math.floor(W*dpr);canvas.height=Math.floor(H*dpr)}
- ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#091827';ctx.fillRect(0,0,W,H);
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#080809';ctx.fillRect(0,0,W,H);
  const az=camera.az,e=camera.el,d=camera.dist;
  const eye=[d*Math.sin(az)*Math.cos(e),d*Math.sin(e)+.018,d*Math.cos(az)*Math.cos(e)];
  const fwd=normalize([-eye[0],-eye[1],-eye[2]]),right=normalize(cross(fwd,[0,1,0])),up=cross(right,fwd),scale=H/(2*Math.tan(47*Math.PI/360));
@@ -480,7 +549,7 @@ function frame(now){const elapsed=lastFrame?Math.min((now-lastFrame)/1000,.06):0
 uiTick+=elapsed;if(trailDirty&&drawFrame%6===0){removeMesh(trailMesh);trailMesh=makeTrail();trailDirty=false}if(needsUI||uiTick>.12)ui();render();requestAnimationFrame(frame)}
 let trailDirty=false;// Reset visual trajectories whenever a new round starts.
 const clearTrails=()=>{for(const rb of robots){rb.trail=[];rb.pathT=0}if(rendererReady){removeMesh(trailMesh);trailMesh=null}trailDirty=false};
-try{hookControls();setupCamera();initWebgl();clearTrails();locate();reset();void checkSavedAccess();showProviderStatus();requestAnimationFrame(frame)}catch(e){console.error(e);const banner=document.createElement('div');banner.className='no-webgl';banner.innerHTML='<div><h2>No se pudo iniciar la visualización</h2><p>'+String(e.message).slice(0,150)+'</p></div>';$('stage').appendChild(banner)}
+try{hookControls();setupCamera();initWebgl();clearTrails();locate();reset();setupDrawer();setupDialogueEditor();showProviderStatus();requestAnimationFrame(frame)}catch(e){console.error(e);const banner=document.createElement('div');banner.className='no-webgl';banner.innerHTML='<div><h2>No se pudo iniciar la visualización</h2><p>'+String(e.message).slice(0,150)+'</p></div>';$('stage').appendChild(banner)}
 })();
 </script>
 </body></html>
