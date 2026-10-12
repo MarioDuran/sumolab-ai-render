@@ -170,6 +170,8 @@ const labels={gpt:'GPT ONLINE',agresivo:'Agresivo',equilibrado:'Equilibrado',def
 const el={}; ['stratA','stratB','descA','descB','nameA','nameB','scoreA','scoreB','clock','roundLabel','statusPill','sensorsPill','centerOverlay','overlayKicker','overlayBig','overlayText','controlStatus','startBtn','pauseBtn','resetTop','rpm','rpmVal','reach','reachVal','grip','gripVal','showSensors','showGrid','formation','eventLog','speedText','cam3d','camTop','camReset'].forEach(id=>el[id]=$(id));
 const settings={rpm:500,reach:.4,grip:1,showSensors:true,showGrid:true,speed:1,formation:'automatico'};
 let phase='ready',prevPhase='ready',round=1,lastWinner=-1,time=60,countdown=5,simClock=0,lastFrame=0,carry=0,logCount=0,needsUI=true,uiTick=0;
+// El reloj de las reglas usa tiempo de pared; la física y el renderizado tienen su propio ritmo.
+let clockStamp=performance.now(),lastRenderAt=0;
 const scores=[0,0];const robots=[];
 function robot(i){return {i,x:0,z:0,a:0,v:0,w:0,l:0,r:0,state:'ESPERA',sensors:[false,false,false],lines:[false,false],escapeT:0,escapeSide:0,searchT:0,searchDir:i?1:-1,seed:i?13579:24680,strategy:i?el.stratB.value:el.stratA.value,llmTactic:'equilibrado',llmAgg:.7,llmNextAt:0,llmPending:false,llmHistory:[],lastLogged:'',lastStateAt:0,breakerT:0,breakerDuration:0,
  brain:{source:'',status:'En espera',motivo:'No hay decisiones todavía.',latency:null,changes:0,history:[],errors:0},
@@ -229,7 +231,7 @@ for(const rb of robots){Object.assign(rb,{v:0,w:0,l:0,r:0,state:'ESPERA',sensors
 measure();for(const rb of robots)resetMonitor(rb);}
 function reset(){clearToasts();llmNonce++;for(const rb of robots){rb.llmHistory=[];rb.pendingBattleToast=null;rb.lastToastAt=-100;rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.llmPending=false;rb.breakerT=0;
  rb.brain={source:'',status:'En espera',motivo:'No hay decisiones todavía.',latency:null,changes:0,history:[],errors:0};rb.monitor.count=0;resetMonitor(rb)}
- clearTrails();round=1;lastWinner=-1;scores[0]=0;scores[1]=0;time=60;countdown=5;simClock=0;carry=0;phase='ready';logCount=0;
+ clearTrails();round=1;lastWinner=-1;scores[0]=0;scores[1]=0;time=60;countdown=5;simClock=0;carry=0;phase='ready';clockStamp=performance.now();lastFrame=clockStamp;logCount=0;
  el.eventLog.innerHTML='<div class="emptylog">Los eventos del asalto aparecerán aquí.</div>';locate();log('Sistema listo. Algoritmos locales cargados.');ui(true)}
 function timeStr(){return fmt(time)}
 function log(msg,tone='neutral'){const row=document.createElement('div');row.className='log-entry';const ts=document.createElement('time');ts.textContent=fmt(60-time);const content=document.createElement('span');content.className=tone;content.textContent=msg;row.append(ts,content);if(!logCount++)el.eventLog.textContent='';el.eventLog.prepend(row);while(el.eventLog.children.length>350)el.eventLog.lastElementChild.remove()}
@@ -352,9 +354,29 @@ if(out[0]||out[1]){if(out[0]&&out[1])endRound(-1,'Salida simultánea');else endR
 }
 function endRound(winner,cause){if(phase!=='running')return;llmNonce++;for(const rb of robots){rb.l=rb.r=rb.v=rb.w=0}
 phase='round_end';lastWinner=winner;if(winner>=0){scores[winner]++;log('Robot '+(winner?'B':'A')+' gana el asalto '+round+'. '+cause+'.',winner?'b':'a');if(scores[winner]>=2){phase='match_end';log('¡Combate finalizado! Campeón: robot '+(winner?'B':'A')+'.')}}else log('Asalto sin ganador: '+cause+'.');ui(true)}
-function begin(){llmNonce++;if(phase==='match_end')reset();if(phase==='ready'||phase==='round_end'){clearToasts();clearTrails();if(phase==='round_end'){if(scores[0]>=2||scores[1]>=2){reset();}else if(lastWinner>=0){round++;}}
-locate();for(const rb of robots){rb.llmNextAt=0;rb.llmPending=false;rb.pendingBattleToast=null;}time=60;countdown=5;phase='countdown';log('Asalto '+round+': cuenta regresiva de 5 segundos.');ui(true)}else if(phase==='paused'){phase=prevPhase;ui(true)}}
-function togglePause(){if(phase==='running'||phase==='countdown'){prevPhase=phase;phase='paused';log('Simulación pausada.')}else if(phase==='paused'){phase=prevPhase;log('Simulación reanudada.')}ui(true)}
+function begin(){
+ // Confirmación síncrona del clic. Nunca se espera la respuesta de OpenAI.
+ if(phase==='running'||phase==='countdown')return;
+ if(phase==='paused'){clockStamp=performance.now();lastFrame=clockStamp;phase=prevPhase;log('Simulación reanudada.');ui(true);return;}
+ llmNonce++;
+ if(phase==='match_end')reset();
+ if(phase==='ready'||phase==='round_end'){
+  clearToasts();clearTrails();
+  if(phase==='round_end'){if(scores[0]>=2||scores[1]>=2)reset();else if(lastWinner>=0)round++;}
+  locate();for(const rb of robots){rb.llmNextAt=0;rb.llmPending=false;rb.pendingBattleToast=null;}
+  time=60;countdown=5;carry=0;phase='countdown';clockStamp=performance.now();lastFrame=clockStamp;
+  log('Asalto '+round+': inicio confirmado. Cuenta regresiva real de 5 segundos.');
+  ui(true);
+  // La consulta al LLM es asíncrona y no controla el comienzo del combate.
+  queueMicrotask(()=>{if(phase==='countdown')tickLLM()});
+ }
+}
+function togglePause(){
+ advanceClock(performance.now());
+ if(phase==='running'||phase==='countdown'){prevPhase=phase;phase='paused';log('Simulación pausada.');}
+ else if(phase==='paused'){phase=prevPhase;log('Simulación reanudada.');}
+ clockStamp=performance.now();lastFrame=clockStamp;ui(true);
+}
 
 // Clave compartida hardcodeada pedida para la demostración. Es visible en el frontend, no un secreto.
 const accessToken='ITESMSON2026.';
@@ -436,12 +458,29 @@ function tickLLM(){
   }
 }
 
-function update(dt){simClock+=dt;if(phase==='countdown'||phase==='running')tickLLM();if(phase==='countdown'){countdown=Math.max(0,countdown-dt);if(countdown<=0){phase='running';log('¡Motores habilitados! Comienza el asalto.');robots.forEach(r=>{r.state='BUSCAR';if(r.pendingBattleToast){emitBattleToast(r,r.pendingBattleToast.tactic,r.pendingBattleToast.reason,r.pendingBattleToast.source);r.lastToastAt=simClock;r.pendingBattleToast=null;}});ui(true)}}else if(phase==='running'){time=Math.max(0,time-dt);move(dt);if(time<=0)endRound(-1,'Tiempo agotado (60 s)')}}
+// Las reglas del asalto no dependen de requestAnimationFrame, WebGL ni las peticiones GPT.
+// Si una pestaña se ralentiza, la cuenta regresiva se actualiza con el tiempo real transcurrido.
+function advanceClock(now=performance.now()){
+ const elapsed=Math.max(0,(now-clockStamp)/1000);clockStamp=now;
+ if(phase!=='countdown'&&phase!=='running')return;
+ const delta=elapsed*settings.speed;simClock+=delta;
+ if(phase==='countdown'){
+  countdown-=delta;
+  if(countdown<=0){
+   const overflow=-countdown;countdown=0;phase='running';
+   log('¡Motores habilitados! Comienza el asalto.');
+   for(const rb of robots){rb.state='BUSCAR';if(rb.pendingBattleToast){emitBattleToast(rb,rb.pendingBattleToast.tactic,rb.pendingBattleToast.reason,rb.pendingBattleToast.source);rb.lastToastAt=simClock;rb.pendingBattleToast=null;}}
+   time=Math.max(0,time-overflow);ui(true);
+  }
+ }else time=Math.max(0,time-delta);
+ if(phase==='running'&&time<=0){endRound(-1,'Tiempo agotado (60 s)');return;}
+ tickLLM();
+}
 function ui(force=false){needsUI=true;if(!force&&uiTick<.09)return;uiTick=0;el.scoreA.textContent=scores[0];el.scoreB.textContent=scores[1];el.clock.textContent=fmt(time);el.roundLabel.textContent='ASALTO '+round+' / 3';el.nameA.textContent=labels[el.stratA.value];el.nameB.textContent=labels[el.stratB.value];let sText={ready:'● EN ESPERA',countdown:'● CUENTA REGRESIVA',running:'● COMBATE ACTIVO',paused:'Ⅱ PAUSADO',round_end:'● ASALTO FINALIZADO',match_end:'◆ COMBATE TERMINADO'};el.statusPill.textContent=sText[phase];el.sensorsPill.textContent=settings.showSensors?'Conos IR visibles':'Conos IR ocultos';el.controlStatus.textContent=phase==='running'?'EN CURSO':phase==='countdown'?'PREPARACIÓN':phase==='paused'?'PAUSADO':phase==='match_end'?'FINALIZADO':'PREPARADO';
-el.startBtn.textContent=phase==='round_end'?(lastWinner<0?'▶ Repetir asalto':'▶ Siguiente asalto'):phase==='match_end'?'↺ Nuevo combate':phase==='paused'?'▶ Reanudar':phase==='running'||phase==='countdown'?'● En curso':'▶ Empezar match';el.startBtn.disabled=phase==='running'||phase==='countdown';el.startBtn.style.opacity=el.startBtn.disabled?'.48':'1';el.pauseBtn.disabled=!['countdown','running','paused'].includes(phase);el.pauseBtn.textContent=phase==='paused'?'▶':'Ⅱ';
-if(['running','paused'].includes(phase)){el.centerOverlay.classList.add('hidden')}else{el.centerOverlay.classList.remove('hidden');if(phase==='ready'){el.overlayKicker.textContent='ARENA LISTA';el.overlayBig.textContent='VS';el.overlayText.textContent='Configura tus robots y pulsa “Empezar match”.'}else if(phase==='countdown'){el.overlayKicker.textContent='LOS MOTORES ESPERAN';el.overlayBig.textContent=String(Math.max(1,Math.ceil(countdown)));el.overlayText.textContent='Arranque reglamentario · 5 segundos'}else if(phase==='round_end'){el.overlayKicker.textContent='ASALTO '+round+' TERMINADO';el.overlayBig.textContent=lastWinner<0?'—':lastWinner===0?'A':'B';el.overlayText.textContent=lastWinner<0?'Empate: se repite el mismo asalto.':'Punto para el robot '+(lastWinner===0?'A':'B')+'. Inicia el siguiente asalto.'}else if(phase==='match_end'){el.overlayKicker.textContent='GANADOR DEL COMBATE';el.overlayBig.textContent=scores[0]>scores[1]?'A':'B';el.overlayText.textContent='Victoria por '+Math.max(...scores)+' a '+Math.min(...scores)+' · mejor de tres'}}
+el.startBtn.textContent=phase==='round_end'?(lastWinner<0?'▶ Repetir asalto':'▶ Siguiente asalto'):phase==='match_end'?'↺ Nuevo combate':phase==='paused'?'▶ Reanudar':phase==='countdown'?'⏳ Preparando · '+Math.max(1,Math.ceil(countdown))+' s':phase==='running'?'● Combate activo':'▶ Empezar match';el.startBtn.disabled=phase==='running'||phase==='countdown';el.startBtn.style.opacity=el.startBtn.disabled?'.48':'1';el.pauseBtn.disabled=!['countdown','running','paused'].includes(phase);el.pauseBtn.textContent=phase==='paused'?'▶':'Ⅱ';
+if(['running','paused'].includes(phase)){el.centerOverlay.classList.add('hidden')}else{el.centerOverlay.classList.remove('hidden');if(phase==='ready'){el.overlayKicker.textContent='ARENA LISTA';el.overlayBig.textContent='VS';el.overlayText.textContent='Configura tus robots y pulsa “Empezar match”.'}else if(phase==='countdown'){el.overlayKicker.textContent='INICIO CONFIRMADO · PREPARANDO COMBATE';el.overlayBig.textContent=String(Math.max(1,Math.ceil(countdown)));el.overlayText.textContent='Arranque reglamentario · 5 segundos'}else if(phase==='round_end'){el.overlayKicker.textContent='ASALTO '+round+' TERMINADO';el.overlayBig.textContent=lastWinner<0?'—':lastWinner===0?'A':'B';el.overlayText.textContent=lastWinner<0?'Empate: se repite el mismo asalto.':'Punto para el robot '+(lastWinner===0?'A':'B')+'. Inicia el siguiente asalto.'}else if(phase==='match_end'){el.overlayKicker.textContent='GANADOR DEL COMBATE';el.overlayBig.textContent=scores[0]>scores[1]?'A':'B';el.overlayText.textContent='Victoria por '+Math.max(...scores)+' a '+Math.min(...scores)+' · mejor de tres'}}
 for(const rb of robots){const pre=rb.i?'b':'a';$("state"+(rb.i?'B':'A')).textContent=rb.state;['Left','Center','Right'].forEach((suffix,j)=>{const node=$(pre+suffix);node.textContent=rb.sensors[j]?'ON':'OFF';node.className=(rb.sensors[j]?'on ':'')+(rb.i?'orange':'blue')});for(let j=0;j<2;j++){const n=$(pre+(j?'LineR':'LineL'));n.textContent=rb.lines[j]?'BORDE':'LIBRE';n.className=rb.lines[j]?'warn':''}}needsUI=false}
-function hookControls(){['A','B'].forEach(s=>{const select=el['strat'+s];select.addEventListener('change',()=>{el['desc'+s].textContent=desc[select.value];const rb=robots[s==='A'?0:1];rb.strategy=select.value;rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.brain.status=select.value==='gpt'?'Esperando GPT':'FSM LOCAL';rb.brain.motivo='Modo cambiado desde el tablero.';resetMonitor(rb);if(select.value==='gpt'&&settings.speed!==1){document.querySelector('[data-speed="1"]')?.click();}log('Robot '+s+': estrategia '+labels[select.value]+'.',s==='A'?'a':'b');ui(true)});el['desc'+s].textContent=desc[select.value]});el.rpm.addEventListener('input',()=>{settings.rpm=+el.rpm.value;el.rpmVal.textContent=settings.rpm+' RPM'});el.reach.addEventListener('input',()=>{settings.reach=+el.reach.value/100;el.reachVal.textContent=el.reach.value+' cm';buildBeams();measure();ui(true)});el.grip.addEventListener('input',()=>{settings.grip=+el.grip.value/100;el.gripVal.textContent=el.grip.value+'%'});el.formation.addEventListener('change',()=>{settings.formation=el.formation.value;if(phase==='ready'||phase==='round_end')locate();else log('La formación se aplicará en el siguiente asalto.');ui(true)});el.showSensors.addEventListener('change',()=>{settings.showSensors=el.showSensors.checked;ui(true)});el.showGrid.addEventListener('change',()=>{settings.showGrid=el.showGrid.checked});el.startBtn.addEventListener('click',begin);el.pauseBtn.addEventListener('click',togglePause);el.resetTop.addEventListener('click',reset);document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{if(robots.some(r=>r.strategy==='gpt')&&+b.dataset.speed!==1){log('Modo GPT: simulación limitada a 1× para respetar el ritmo de la API.');return;}settings.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('active',x===b));el.speedText.textContent=settings.speed+'×'}));document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea,button'))return;if(e.code==='Space'){e.preventDefault();if(phase==='ready'||phase==='round_end')begin();else togglePause()}if(e.key.toLowerCase()==='r')reset();if(e.key.toLowerCase()==='c')viewDefault();if(e.key.toLowerCase()==='s'){el.showSensors.checked=!el.showSensors.checked;settings.showSensors=el.showSensors.checked;ui(true)}})}
+function hookControls(){['A','B'].forEach(s=>{const select=el['strat'+s];select.addEventListener('change',()=>{el['desc'+s].textContent=desc[select.value];const rb=robots[s==='A'?0:1];rb.strategy=select.value;rb.llmNextAt=0;rb.llmTactic='equilibrado';rb.brain.status=select.value==='gpt'?'Esperando GPT':'FSM LOCAL';rb.brain.motivo='Modo cambiado desde el tablero.';resetMonitor(rb);if(select.value==='gpt'&&settings.speed!==1){document.querySelector('[data-speed="1"]')?.click();}log('Robot '+s+': estrategia '+labels[select.value]+'.',s==='A'?'a':'b');ui(true)});el['desc'+s].textContent=desc[select.value]});el.rpm.addEventListener('input',()=>{settings.rpm=+el.rpm.value;el.rpmVal.textContent=settings.rpm+' RPM'});el.reach.addEventListener('input',()=>{settings.reach=+el.reach.value/100;el.reachVal.textContent=el.reach.value+' cm';buildBeams();measure();ui(true)});el.grip.addEventListener('input',()=>{settings.grip=+el.grip.value/100;el.gripVal.textContent=el.grip.value+'%'});el.formation.addEventListener('change',()=>{settings.formation=el.formation.value;if(phase==='ready'||phase==='round_end')locate();else log('La formación se aplicará en el siguiente asalto.');ui(true)});el.showSensors.addEventListener('change',()=>{settings.showSensors=el.showSensors.checked;ui(true)});el.showGrid.addEventListener('change',()=>{settings.showGrid=el.showGrid.checked});el.startBtn.addEventListener('click',begin);el.pauseBtn.addEventListener('click',togglePause);el.resetTop.addEventListener('click',reset);document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{if(robots.some(r=>r.strategy==='gpt')&&+b.dataset.speed!==1){log('Modo GPT: simulación limitada a 1× para respetar el ritmo de la API.');return;}advanceClock(performance.now());settings.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('active',x===b));el.speedText.textContent=settings.speed+'×'}));document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea,button'))return;if(e.code==='Space'){e.preventDefault();if(phase==='ready'||phase==='round_end')begin();else togglePause()}if(e.key.toLowerCase()==='r')reset();if(e.key.toLowerCase()==='c')viewDefault();if(e.key.toLowerCase()==='s'){el.showSensors.checked=!el.showSensors.checked;settings.showSensors=el.showSensors.checked;ui(true)}})}
 // ─────────────────────────────────────────────────────────────────────
 // Small dependency-free WebGL 3D engine. Geometry is expressed in meters.
 // El renderizador es local, pero el modo GPT hace peticiones HTTP a nuestro backend protegido.
@@ -556,11 +595,38 @@ function renderFallback(){
  for(const rb of sorted){drawCPU(geo.shadow,trans(rb.x,.002,rb.z,rb.a),.45);if(settings.showSensors)for(let j=0;j<3;j++)drawCPU(beamMeshes[rb.i][j],trans(rb.x,0,rb.z,rb.a),rb.sensors[j]?.26:.08)}
  for(const rb of sorted)drawCPU(botMeshes[rb.i],trans(rb.x,0,rb.z,rb.a));drawFrame++;
 }
-function frame(now){const elapsed=lastFrame?Math.min((now-lastFrame)/1000,.06):0;lastFrame=now;carry+=elapsed*settings.speed;let iteration=0;const fixed=.002;while(carry>=fixed&&iteration++<150){if(phase==='running'||phase==='countdown'){update(fixed);if(phase==='running')for(const rb of robots){rb.pathT=(rb.pathT||0)+fixed;if(rb.pathT>.065){rb.pathT=0;rb.trail.push({x:rb.x,z:rb.z});if(rb.trail.length>65)rb.trail.shift();trailDirty=true}}}carry-=fixed}if(iteration>=150)carry=0;
-uiTick+=elapsed;if(trailDirty&&drawFrame%6===0){removeMesh(trailMesh);trailMesh=makeTrail();trailDirty=false}if(needsUI||uiTick>.12)ui();render();requestAnimationFrame(frame)}
+function frame(now){
+ // El tiempo reglamentario se actualiza antes de dibujar, incluso si los FPS caen.
+ const elapsed=lastFrame?Math.max(0,(now-lastFrame)/1000):0;lastFrame=now;
+ advanceClock(now);
+ // El motor físico da pasos fijos de 2 ms, con presupuesto acotado por fotograma.
+ // Si el navegador no mantiene el ritmo, descarta física atrasada, NO tiempo reglamentario.
+ if(phase==='running'){
+  carry+=Math.min(elapsed,.12)*settings.speed;
+  let iteration=0;const fixed=.002;
+  while(carry>=fixed&&iteration<60&&phase==='running'){
+   move(fixed);iteration++;carry-=fixed;
+   if(phase==='running')for(const rb of robots){rb.pathT=(rb.pathT||0)+fixed;if(rb.pathT>.065){rb.pathT=0;rb.trail.push({x:rb.x,z:rb.z});if(rb.trail.length>65)rb.trail.shift();trailDirty=true;}}
+  }
+  if(carry>=fixed)carry=0;
+ }else carry=0;
+ uiTick+=elapsed;
+ // El fallback Canvas usa mucho CPU; no volver a renderizar 60 veces/s si no hay WebGL.
+ const interval=rendererReady?1000/50:1000/24;
+ if(!lastRenderAt||now-lastRenderAt>=interval){
+  lastRenderAt=now;
+  if(trailDirty&&drawFrame%6===0){removeMesh(trailMesh);trailMesh=makeTrail();trailDirty=false;}
+  if(needsUI||uiTick>.12)ui();
+  render();
+ }
+ requestAnimationFrame(frame);
+}
 let trailDirty=false;// Reset visual trajectories whenever a new round starts.
 const clearTrails=()=>{for(const rb of robots){rb.trail=[];rb.pathT=0}if(rendererReady){removeMesh(trailMesh);trailMesh=null}trailDirty=false};
-try{hookControls();setupCamera();initWebgl();clearTrails();locate();reset();setupDrawer();setupDialogueEditor();showProviderStatus();requestAnimationFrame(frame)}catch(e){console.error(e);const banner=document.createElement('div');banner.className='no-webgl';banner.innerHTML='<div><h2>No se pudo iniciar la visualización</h2><p>'+String(e.message).slice(0,150)+'</p></div>';$('stage').appendChild(banner)}
+try{hookControls();setupCamera();initWebgl();clearTrails();locate();reset();setupDrawer();setupDialogueEditor();showProviderStatus();
+// Reloj de respaldo: continúa actualizándose aunque requestAnimationFrame sea lento.
+setInterval(()=>{if(phase==='running'||phase==='countdown'){advanceClock(performance.now());ui(true);}},80);
+requestAnimationFrame(frame)}catch(e){console.error(e);const banner=document.createElement('div');banner.className='no-webgl';banner.innerHTML='<div><h2>No se pudo iniciar la visualización</h2><p>'+String(e.message).slice(0,150)+'</p></div>';$('stage').appendChild(banner)}
 })();
 </script>
 </body></html>

@@ -1,3 +1,29 @@
+# SUMO//LAB AI v7 — Inicio inmediato / reloj real (Render)
+
+Esta versión corrige el inicio, la revancha y la cuenta regresiva afectados por la velocidad de renderizado. Conserva la interfaz negra, los mensajes `Bot A: "..."` y `Bot B: "..."`, el código de demostración **`ITESMSON2026.`** (con punto), los cerebros GPT y el registro formal.
+
+## Cambios en v7
+
+- **Empezar match / Siguiente asalto / Repetir asalto / Nuevo combate**: reaccionan al clic de inmediato, muestran una confirmación y arrancan la cuenta regresiva sin esperar a la API.
+- **5 segundos reglamentarios de verdad**, medidos con `performance.now()` en lugar de por los fotogramas. En pausa el reloj se congela y al reanudar continúa.
+- **Asalto de 60 segundos** independiente de los FPS. El reloj del partido también se actualiza mediante un temporizador ligero cuando los fotogramas van lentos.
+- **Física a paso fijo de 2 ms** y render 3D desacoplado; el modo Canvas sin WebGL se limita a 24 FPS para descargar la CPU. Si el equipo no soporta el paso físico, la animación aún puede ser aproximada; el reloj sí respeta el tiempo real.
+- **GPT asíncrono**: durante la cuenta regresiva se adelantan las consultas, pero la acción local inicia aunque OpenAI tarde en responder o falle.
+
+## Desplegar en Render
+
+1. Descomprime el ZIP; carga el contenido a la raíz de tu repositorio GitHub.
+2. Conserva las variables `OPENAI_API_KEY`, `OPENAI_MODEL`, `MAX_DECISIONS_PER_HOUR`, `MAX_DECISIONS_PER_DAY` que ya tengas.
+3. Haz commit y despliega en Render (o `Manual Deploy`).
+4. Recarga la web con `Ctrl+Shift+R` (o `Cmd+Shift+R`) para evitar un HTML antiguo en caché.
+5. Prueba primero con `MOCK_LLM=1`. Cuando el simulador responda correctamente, usa `MOCK_LLM=0`.
+
+Local: `npm test` y `MOCK_LLM=1 node server.mjs`. Node.js 20+. No requiere paquetes externos.
+
+**Advertencia:** el código `ITESMSON2026.` está visible en el navegador: no es autenticación segura para un sitio público. La clave `OPENAI_API_KEY` permanece únicamente en Render, pero cualquier visitante podría provocar gastos de API. Usa autenticación del lado del servidor y límites persistentes antes de abrir el laboratorio públicamente.
+
+---
+
 # SUMO//LAB AI v6 — diálogos minimalistas
 
 Cambio visual respecto a v5: los avisos dentro de la arena muestran **únicamente** `Bot A: "mensaje"` o `Bot B: "mensaje"`, en una fuente más pequeña, blanca con contorno negro. No incluyen temporizador, estrategia, origen de la decisión ni motivo en el escenario. Los mensajes del robot A permanecen a la izquierda, los del robot B a la derecha, apilándose por separado y desapareciendo automáticamente. El registro formal bajo la arena sigue conteniendo la información de las decisiones.
