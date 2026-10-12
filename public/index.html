@@ -73,21 +73,14 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
 .viewport-bottom{bottom:15px;left:18px;right:18px;z-index:4}
 .scene-tip{color:#a1a1a4;background:#101012ba;border:1px solid #29292d}
 .camera-btns button{background:#171719d9;border:1px solid #3c3c41;color:#e5e5e7}.camera-btns button.active{background:#efefef;border-color:#fff;color:#111}
-/* V5: paneles de diálogo superpuestos con lados independientes, sin tarjetas */
+/* V6: mensajes minimalistas independientes en ambos lados del dohyo */
 .toast-stack{position:absolute;z-index:7;inset:115px 0 70px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,19vw,300px);padding:0 clamp(12px,2.3vw,34px);pointer-events:none;overflow:hidden}
 .toast-lane{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:17px;padding:0 0 32px;overflow:hidden;pointer-events:none}
 .toast-lane.robot-a{text-align:left;align-items:flex-start}
 .toast-lane.robot-b{text-align:right;align-items:flex-end}
 .battle-toast{position:relative;flex:0 0 auto;max-width:100%;width:100%;border:0;background:transparent;box-shadow:none;border-radius:0;padding:0;color:#fff;pointer-events:none;animation:toastRise .24s cubic-bezier(.22,.9,.2,1)}
-.battle-toast .toast-meta{display:flex;align-items:center;flex-wrap:wrap;gap:3px 9px;margin-bottom:4px;font-size:clamp(10px,.85vw,12px);line-height:1.3;font-weight:900;letter-spacing:.035em;color:#fff}
-.toast-lane.robot-b .toast-meta{justify-content:flex-end}
-.battle-toast .toast-bot{font-weight:1000;letter-spacing:.1em;font-size:clamp(11px,1vw,14px)}
-.battle-toast .toast-origin{font-size:9px;font-weight:750;letter-spacing:.025em;color:#f4f4f4}
-.battle-toast .toast-reason{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:clamp(10px,.87vw,12px);font-weight:700;line-height:1.37;color:#fff;margin:1px 0 5px}
-.battle-toast .toast-quote{font-size:clamp(16px,1.7vw,25px);line-height:1.16;font-weight:1000;letter-spacing:-.035em;text-transform:uppercase;color:#fff;margin:0;overflow-wrap:anywhere}
-/* El contorno se aplica a todo el texto, sin fondo ni rectángulo */
-.battle-toast .toast-meta,.battle-toast .toast-reason,.battle-toast .toast-quote{-webkit-text-stroke:.55px #000;paint-order:stroke fill;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 9px #000,0 4px 15px #000}
-.battle-toast .toast-quote{-webkit-text-stroke:1.4px #000;text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 5px 14px #000}
+/* V6: en el escenario, SOLO Bot A: "frase" o Bot B: "frase" */
+.battle-toast .toast-line{font-size:clamp(13px,1.25vw,18px);line-height:1.32;font-weight:850;letter-spacing:-.012em;text-transform:none;color:#fff;margin:0;overflow-wrap:anywhere;-webkit-text-stroke:1.0px #000;paint-order:stroke fill;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 9px #000}
 .battle-toast.fading{animation:toastOut .26s ease forwards}
 @keyframes toastRise{from{transform:translateY(19px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes toastOut{to{opacity:0;transform:translateY(-12px)}}
@@ -113,9 +106,9 @@ main{padding:20px clamp(12px,2.7vw,48px) 45px;max-width:1640px}
 .drawer-section .checkbox-row{display:flex;justify-content:space-between}.drawer-section .checkbox-row input{accent-color:#fff}
 .settings-hint{font-size:11px;line-height:1.65;color:#a6a6aa;margin:0 0 8px}.drawer-status{font-size:11px;color:#b3b3bb;line-height:1.6}
 [hidden]{display:none!important}
-@media(max-width:730px){main{padding:11px 9px 25px}.command-strip{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:9px}.command-left{grid-column:1;grid-row:1}.command-right{grid-column:2;grid-row:1}.command-center{grid-column:1/-1;grid-row:2;justify-content:center}.command-strip .primary{flex:1;min-width:0}.scene-card{height:clamp(530px,74vh,770px);border-radius:12px}.hud-row{top:12px;left:9px;right:9px;gap:5px}.score-card{min-width:0;padding:8px;gap:5px;flex:1}.score-card .score-val{font-size:21px}.team-name{font-size:9px}.team-desc{font-size:9px}.match-center{padding:8px 7px;min-width:88px}.time{font-size:22px}.timer-label{font-size:8px}.top-pills{top:76px;gap:5px}.top-pill{font-size:9px} .toast-stack{inset:115px 0 70px;gap:clamp(10px,2.5vw,24px);padding:0 8px}.toast-lane{gap:11px;padding-bottom:26px}.battle-toast .toast-meta{font-size:9px;gap:2px 4px}.battle-toast .toast-origin{display:none}.battle-toast .toast-reason{font-size:9px;-webkit-line-clamp:1}.battle-toast .toast-quote{font-size:clamp(13px,3.4vw,17px);-webkit-text-stroke:.9px #000}.scene-tip{display:none}.viewport-bottom{justify-content:center}.event-section{padding:15px}.event-head{align-items:start;flex-direction:column;gap:3px}}
-@media(min-width:731px) and (max-width:1020px){.toast-stack{gap:clamp(38px,8vw,100px)}.battle-toast .toast-quote{font-size:clamp(17px,2.15vw,21px)}}
-@media(max-width:390px){.toast-stack{gap:8px;padding:0 6px}.battle-toast .toast-meta{font-size:8px}.battle-toast .toast-quote{font-size:12px}.battle-toast .toast-reason{font-size:9px}}
+@media(max-width:730px){main{padding:11px 9px 25px}.command-strip{grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:9px}.command-left{grid-column:1;grid-row:1}.command-right{grid-column:2;grid-row:1}.command-center{grid-column:1/-1;grid-row:2;justify-content:center}.command-strip .primary{flex:1;min-width:0}.scene-card{height:clamp(530px,74vh,770px);border-radius:12px}.hud-row{top:12px;left:9px;right:9px;gap:5px}.score-card{min-width:0;padding:8px;gap:5px;flex:1}.score-card .score-val{font-size:21px}.team-name{font-size:9px}.team-desc{font-size:9px}.match-center{padding:8px 7px;min-width:88px}.time{font-size:22px}.timer-label{font-size:8px}.top-pills{top:76px;gap:5px}.top-pill{font-size:9px} .toast-stack{inset:115px 0 70px;gap:clamp(10px,2.5vw,24px);padding:0 8px}.toast-lane{gap:11px;padding-bottom:26px}.battle-toast .toast-line{font-size:clamp(12px,3.05vw,15px);-webkit-text-stroke:.75px #000}.scene-tip{display:none}.viewport-bottom{justify-content:center}.event-section{padding:15px}.event-head{align-items:start;flex-direction:column;gap:3px}}
+@media(min-width:731px) and (max-width:1020px){.toast-stack{gap:clamp(38px,8vw,100px)}.battle-toast .toast-line{font-size:clamp(13px,1.7vw,17px)}}
+@media(max-width:390px){.toast-stack{gap:8px;padding:0 6px}.battle-toast .toast-line{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.battle-toast{animation:none!important}.battle-toast.fading{animation:none!important}}
 
 </style></head>
@@ -284,14 +277,9 @@ function emitBattleToast(rb,tactic,reason,origin='fsm'){
  const arena=$(rb.i?'toastLaneB':'toastLaneA'),bot=rb.i?'B':'A';
  const speech=dialogueQuote(bot,tactic);if(!speech)return;
  const card=document.createElement('article');card.className='battle-toast'+(rb.i?' robot-b':'');
- const meta=document.createElement('div');meta.className='toast-meta';
- const tag=document.createElement('span');tag.className='toast-bot';tag.textContent='BOT '+bot;
- const timeLabel=document.createElement('span');timeLabel.textContent='T−'+time.toFixed(1)+'s';
- const originTag=document.createElement('span');originTag.className='toast-origin';originTag.textContent=origin==='mock'?'DEMO · SIN GPT':origin==='control'||origin==='control_anti_bucle'?'SEGURIDAD LOCAL':origin==='preview'?'VISTA PREVIA':origin==='guided'?'GPT + CONTROL LOCAL':origin==='fsm'?'MANIOBRA LOCAL':'GPT ONLINE';
- const tacticLabel=document.createElement('strong');tacticLabel.textContent=labels[tactic]||tactic;
- const reasonEl=document.createElement('span');reasonEl.className='toast-reason';reasonEl.textContent=' · '+String(reason||'Decisión táctica actual.').slice(0,115);
- const quote=document.createElement('p');quote.className='toast-quote';quote.textContent='“'+speech+'”';
- meta.append(tag,timeLabel,tacticLabel,originTag);card.append(meta,reasonEl,quote);arena.append(card);
+ const line=document.createElement('p');line.className='toast-line';
+ line.textContent='Bot '+bot+': "'+speech+'"';
+ card.append(line);arena.append(card);
  while(arena.children.length>3){const prev=arena.firstElementChild;clearTimeout(liveToastTimers.get(prev));liveToastTimers.delete(prev);prev.remove();}
  const timer=setTimeout(()=>{card.classList.add('fading');const finish=setTimeout(()=>{card.remove();liveToastTimers.delete(card);},240);liveToastTimers.set(card,finish)},5700);
  liveToastTimers.set(card,timer);

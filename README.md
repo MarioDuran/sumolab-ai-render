@@ -1,4 +1,8 @@
-# SUMO//LAB AI v5 · Cyborg Arena / Render
+# SUMO//LAB AI v6 — diálogos minimalistas
+
+Cambio visual respecto a v5: los avisos dentro de la arena muestran **únicamente** `Bot A: "mensaje"` o `Bot B: "mensaje"`, en una fuente más pequeña, blanca con contorno negro. No incluyen temporizador, estrategia, origen de la decisión ni motivo en el escenario. Los mensajes del robot A permanecen a la izquierda, los del robot B a la derecha, apilándose por separado y desapareciendo automáticamente. El registro formal bajo la arena sigue conteniendo la información de las decisiones.
+
+# SUMO//LAB AI v6 · Cyborg Arena / Render
 
 Simulador 3D de mini sumo con dos controladores GPT opcionales, interfaz negra y diálogos estilo Terminator vs RoboCop personalizables directamente sobre el combate. Mantiene una máquina de estados local para seguridad, detección de bordes, sensores simulados y anti-ciclo. **Los textos de combate son frases de exhibición**, NO el razonamiento privado del modelo. Los motivos tácticos cortos que devuelve el modelo aparecen identificados junto a esas frases.
 
